@@ -31,6 +31,43 @@ TEST(TamaTest, SmaMatchesKnownValues) {
     }
 }
 
+TEST(TamaTest, EmaRejectsEmptyPrices) {
+    const vector<double> prices{};
+    vector<double> ema{1.0, 2.0};
+
+    const auto result = tama::ema(prices, ema, 3);
+
+    EXPECT_EQ(result, status::emptyPrices);
+    EXPECT_EQ(ema.size(), 2u);
+}
+
+TEST(TamaTest, SmaRejectsEmptyPrices) {
+    const vector<double> prices{};
+    vector<double> sma{1.0, 2.0};
+
+    const auto result = tama::sma(prices, sma, 3);
+
+    EXPECT_EQ(result, status::emptyPrices);
+    EXPECT_EQ(sma.size(), 2u);
+}
+
+TEST(TamaTest, EmaRejectsInvalidParams) {
+    const vector<double> prices{10, 11, 12};
+    vector<double> ema;
+
+    const auto result = tama::ema(prices, ema, 0);
+
+    EXPECT_EQ(result, status::invalidParam);
+}
+
+TEST(TamaTest, SmaRejectsInvalidParams) {
+    const vector<double> prices{10, 11, 12};
+    vector<double> sma;
+
+    EXPECT_EQ(tama::sma(prices, sma, 0), status::invalidParam);
+    EXPECT_EQ(tama::sma(prices, sma, 3), status::invalidParam);
+}
+
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

@@ -1,34 +1,40 @@
 #include <vector>
 #include <tama/tama.hpp>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
 namespace tama {    
-    void sma(const vector<double>& prices, vector<double>& sma, uint16_t smaPeriod) {
+    status sma(const vector<double>& prices, vector<double>& smaOut, const uint16_t smaPeriod) {
+        if (prices.empty() ) {
+            return status::emptyPrices;
+        }
         size_t pricesLen = prices.size();
-        if (smaPeriod > pricesLen || smaPeriod == 0 ) {
-            return;
+
+        if (smaPeriod >= pricesLen || smaPeriod == 0 ) {
+            return status::invalidParam;
         }
-        
-        if (sma.size() != pricesLen) {
-            sma.resize(pricesLen);
+
+        if (smaOut.size() != pricesLen) {
+            smaOut.resize(pricesLen);
         }
-        std::fill(sma.begin(), sma.begin() + smaPeriod-1, 0);
+        std::fill(smaOut.begin(), smaOut.begin() + smaPeriod-1, 0);
 
         const double alpha = 1 / double(smaPeriod);
         double sum = 0.0;
         
-        for (size_t i = 0; i < smaPeriod; i++ ) {
+        
+        for (uint16_t i = 0; i < smaPeriod; i++ ) {
             sum += prices[smaPeriod-i-1];
         }
-        sma[smaPeriod-1] = alpha * sum;
+        smaOut[smaPeriod-1] = alpha * sum;
         
         for (size_t t = smaPeriod; t < pricesLen; t++ ) {
             sum += prices[t] - prices[t-smaPeriod];
-            sma[t] = alpha * sum;
+            smaOut[t] = alpha * sum;
         }
         
-        return;
+        return status::ok;
     }
 }

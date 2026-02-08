@@ -4,7 +4,13 @@
 #include <cstdint>
 
 
+enum class status {
+    ok,
+    emptyPrices,
+    invalidParam
+};
+
 namespace tama {
-    void ema(const std::vector<double>& prices, std::vector<double>& ema, uint16_t emaPeriod);
-    void sma(const std::vector<double>& prices, std::vector<double>& sma, uint16_t smaPeriod);
+    status ema(const std::vector<double>& prices, std::vector<double>& emaOut, const uint16_t emaPeriod);
+    status sma(const std::vector<double>& prices, std::vector<double>& smaOut, const uint16_t smaPeriod);
 }
