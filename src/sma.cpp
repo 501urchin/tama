@@ -16,7 +16,7 @@ namespace tama {
         }
         std::fill(sma.begin(), sma.begin() + smaPeriod-1, 0);
 
-        double alpha = 1 / double(smaPeriod);
+        const double alpha = 1 / double(smaPeriod);
         double sum = 0.0;
         
         for (size_t i = 0; i < smaPeriod; i++ ) {
