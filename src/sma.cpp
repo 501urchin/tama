@@ -1,7 +1,6 @@
 #include <vector>
 #include <tama/tama.hpp>
 #include <algorithm>
-#include <numeric>
 
 using namespace std;
 
