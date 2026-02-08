@@ -5,7 +5,8 @@
 			"includePath": [
 				"${workspaceFolder}/**",
 				"${workspaceFolder}/build/_deps/googletest-src/googletest/include"
-			]
+			],
+			"cppStandard": "c++23"
 		}
 	],
 	"version": 4
