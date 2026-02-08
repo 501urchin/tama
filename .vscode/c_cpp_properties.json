@@ -1,0 +1,12 @@
+{
+	"configurations": [
+		{
+			"name": "tama",
+			"includePath": [
+				"${workspaceFolder}/**",
+				"${workspaceFolder}/build/_deps/googletest-src/googletest/include"
+			]
+		}
+	],
+	"version": 4
+}
