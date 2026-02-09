@@ -27,7 +27,7 @@ build: configure
 # Build & run the example program
 run: configure
 	@$(CMAKE) -S . -B $(BUILD_DIR)  -DTAMA_RUN_BUILD=ON -DTAMA_BUILD_TESTS=OFF > /dev/null 2>&1
-	@$(CMAKE) --build $(BUILD_DIR) --parallel > /dev/null 2>&1
+	@$(CMAKE) --build $(BUILD_DIR) --parallel 
 	@./$(BUILD_DIR)/tama_run
 
 # Build & run tests

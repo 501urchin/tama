@@ -2,8 +2,6 @@
 
 This document lists common moving averages used in trading, along with their mathematical formulas.
 
-
-
 ## 1. Volume Weighted Moving Average (VWMA)
 
 **Description:** Prices weighted by trading volume, emphasizes high-volume levels.
@@ -11,11 +9,13 @@ This document lists common moving averages used in trading, along with their mat
 **Formula:**
 
 $$
-\text{VWMA}*t =
-\frac{\sum*{i=0}^{n-1} P_{t-i} V_{t-i}}
-{\sum_{i=0}^{n-1} V_{t-i}}
+\operatorname{VWMA}_t =
+\frac{
+  \displaystyle\sum_{i=0}^{n-1} P_{t-i} V_{t-i}
+}{
+  \displaystyle\sum_{i=0}^{n-1} V_{t-i}
+}
 $$
-
 
 ## 2. Double Exponential Moving Average (DEMA)
 
@@ -42,7 +42,7 @@ $$
 * 3\cdot\text{EMA}(\text{EMA}_t)
 
 - \text{EMA}(\text{EMA}(\text{EMA}_t))
-  $$
+$$
 
 ---
 
@@ -73,7 +73,7 @@ $$
 \text{KAMA}*{t-1}
 
 * SC_t \cdot (P_t - \text{KAMA}_{t-1})
-  $$
+$$
 
 $$
 SC_t =
