@@ -28,23 +28,8 @@ if (TAMA_RUN_BUILD)
     )
 endif()
 
-
 option(TAMA_BUILD_TESTS "Build tests" ON)
 if (TAMA_BUILD_TESTS)
-    include(FetchContent)
-    FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/refs/heads/main.zip
-    )
-    FetchContent_MakeAvailable(googletest)
-
     enable_testing()
-
-    file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
-    add_executable(tests ${TEST_SOURCES})
-    target_link_libraries(tests PRIVATE tama gtest_main)
-    target_include_directories(tests PRIVATE ${gtest_SOURCE_DIR}/include)
-
-    include(GoogleTest)
-    gtest_discover_tests(tests)
+    add_subdirectory(tests)
 endif()
