@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-13
+
+      - name: Configure CMake
+        env:
+          CXX: g++-13
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DTAMA_BUILD_TESTS=ON
+
+      - name: Build
+        run: |
+          cmake --build build --config Release -- -j 4
+
+      - name: Run tests
+        working-directory: build
+        run: |
+          ctest --output-on-failure
