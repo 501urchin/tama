@@ -3,13 +3,14 @@
 #include <vector>
 #include <cstdint>
 
-enum class status {
-    ok,
-    emptyPrices,
-    invalidParam
-};
 
 namespace tama {
+    enum class status : uint8_t {
+        ok,
+        emptyPrices,
+        invalidParam
+    };
+    
     /// Calculates the Exponential Moving Average (EMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param emaOut Output vector that will contain the EMA values.

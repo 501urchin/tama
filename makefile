@@ -18,12 +18,19 @@ help:
 	@echo "  rebuild   - Clean then build"
 
 configure:
-	@$(CMAKE) -S . -B $(BUILD_DIR)
+	@$(CMAKE) -S . -B $(BUILD_DIR) 
 
 build: configure
+	@$(CMAKE) -S . -B build -DTAMA_BUILD_TESTS=OFF -DTAMA_RUN_BUILD=OFF > /dev/null 2>&1
 	@$(CMAKE) --build $(BUILD_DIR)
 
-test: build
+run: 
+	@$(CMAKE) -S . -B build -DTAMA_RUN_BUILD=ON -DTAMA_BUILD_TESTS=OFF > /dev/null 2>&1
+	@$(CMAKE) --build $(BUILD_DIR) > /dev/null 2>&1
+	@./$(BUILD_DIR)/tama_run
+
+test:
+	@$(CMAKE) -S . -B build -DTAMA_BUILD_TESTS=ON > /dev/null 2>&1
 	@$(CTEST) --test-dir $(BUILD_DIR)
 
 clean:
