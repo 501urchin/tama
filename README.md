@@ -47,7 +47,7 @@ target_link_libraries(your_target PRIVATE tama)
 ```
 
 
-## Example: EMA usage
+## Example usage
 
 ```cpp
 #include <tama/tama.hpp>
@@ -58,6 +58,8 @@ int main() {
 	std::vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
 	std::vector<double> emaOut(prices.size());
 
+	// Ensure the output vector is at least as large as the input vector.
+	// If it is smaller, tama::ema will attempt to resize it internally.
 	tama::status res = tama::ema(prices, emaOut, 3);
 	if (res != tama::status::ok) {
 		std::cerr << "tama::ema failed" << std::endl;
