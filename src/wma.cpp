@@ -9,7 +9,7 @@ namespace tama {
         size_t pricesLen = prices.size();
 
         if (pricesLen == 0) {
-            return status::emptyPrices;
+            return status::emptyParams;
         }
 
         if (wmaPeriod == 0 || wmaPeriod >= pricesLen) {

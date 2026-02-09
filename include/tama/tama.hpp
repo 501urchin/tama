@@ -8,7 +8,7 @@
 namespace tama {
     enum class status : uint8_t {
         ok,
-        emptyPrices,
+        emptyParams,
         invalidParam
     };
     
@@ -32,4 +32,12 @@ namespace tama {
     /// @param wmaPeriod The period over which to calculate the WMA.
     /// @return status indicating success or failure.
     status wma(std::span<const double>  prices, std::vector<double>& wmaOut, const uint16_t wmaPeriod);
+    
+    /// Calculates the Volume-Weighted Moving Average (VWMA) of a price series.
+    /// @param prices Input vector of prices (Close, Open, High, Low).
+    /// @param volume Input vector of volumes aligned with prices.
+    /// @param vwmaOut Output vector that will contain the VWMA values.
+    /// @param vwmaPeriod The period over which to calculate the VWMA.
+    /// @return status indicating success or failure.
+    status vwma(std::span<const double> prices, std::span<const double> volume, std::vector<double>& vwmaOut, const uint16_t vwmaPeriod);
 } // namespace tama

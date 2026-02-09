@@ -22,13 +22,13 @@ TEST(TamaTest, SmaMatchesKnownValues) {
 
 
 
-TEST(TamaTest, SmaRejectsEmptyPrices) {
+TEST(TamaTest, SmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> smaOut{1.0, 2.0};
 
     const auto result = sma(prices, smaOut, 3);
 
-    EXPECT_EQ(result, status::emptyPrices);
+    EXPECT_EQ(result, status::emptyParams);
     EXPECT_EQ(smaOut.size(), 2u);
 }
 

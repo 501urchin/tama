@@ -22,13 +22,13 @@ TEST(TamaTest, EmaMatchesKnownValues) {
     }
 }
 
-TEST(TamaTest, EmaRejectsEmptyPrices) {
+TEST(TamaTest, EmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> emaOut{1.0, 2.0};
 
     const auto result = ema(prices, emaOut, 3);
 
-    EXPECT_EQ(result, tama::status::emptyPrices);
+    EXPECT_EQ(result, tama::status::emptyParams);
     EXPECT_EQ(emaOut.size(), 2u);
 }
 

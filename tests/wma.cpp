@@ -22,13 +22,13 @@ TEST(TamaTest, WmaMatchesKnownValues) {
 
 
 
-TEST(TamaTest, WmaRejectsEmptyPrices) {
+TEST(TamaTest, WmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> wmaOut{1.0, 2.0};
 
     const auto result = wma(prices, wmaOut, 3);
 
-    EXPECT_EQ(result, status::emptyPrices);
+    EXPECT_EQ(result, status::emptyParams);
     EXPECT_EQ(wmaOut.size(), 2u);
 }
 
