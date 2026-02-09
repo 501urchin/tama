@@ -19,10 +19,10 @@ Design goals:
 ## TODO
 
 - Add a way to reuse previous calculation. A idea could be to add a optionnal 'prevCalc' param to each func and if its not empty use it
-- Implement hma.
 - Implement kama.
 - Implement mcginley dynamic.
-- Implement gd.
+- Implement Generalized dema.
+- Implement frama.
 
 ## Installation
 

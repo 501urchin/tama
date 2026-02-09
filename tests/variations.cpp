@@ -6,6 +6,7 @@ using std::vector;
 
 using tama::dema;
 using tama::tema;
+using tama::hull;
 using tama::status;
 
 TEST(TamaTest, DemaMatchesKnownValues) {
@@ -66,4 +67,41 @@ TEST(TamaTest, TemaRejectsInvalidParams) {
     vector<double> temaOut;
 
     EXPECT_EQ(tema(prices, temaOut, 0), status::invalidParam);
+}
+
+
+TEST(TamaTest, HullMatchesKnownValuesPeriod3) {
+    const vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
+    const vector<double> expected{0, 0, 0, 12.8333, 12.5, 13.8333, 15.5, 13.3889, 13.5, 16.1667};
+    vector<double> hullOut;
+
+    const auto result = hull(prices, hullOut, 3);
+
+    ASSERT_EQ(result, status::ok);
+    ASSERT_EQ(hullOut.size(), prices.size());
+    ASSERT_EQ(expected.size(), prices.size());
+
+
+    for (size_t i = 3; i < expected.size(); ++i) {
+        EXPECT_NEAR(hullOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
+    }
+}
+
+TEST(TamaTest, HullRejectsEmptyParams) {
+    const vector<double> prices{};
+    vector<double> hullOut{1.0, 2.0};
+
+    const auto result = hull(prices, hullOut, 3);
+
+    EXPECT_EQ(result, status::emptyParams);
+    EXPECT_EQ(hullOut.size(), 2u);
+}
+
+TEST(TamaTest, HullRejectsInvalidParams) {
+    const vector<double> prices{10, 11, 12};
+    vector<double> hullOut;
+
+    const auto result = hull(prices, hullOut, 0);
+
+    EXPECT_EQ(result, status::invalidParam);
 }

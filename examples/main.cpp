@@ -5,27 +5,22 @@
 #include <iostream>
 #include <chrono>
 #include <utility>
+#include <cmath>
 
-std::string status_to_string(tama::status s) {
-    switch(s) {
-        case tama::status::ok: return "ok";
-        case tama::status::invalidParam: return "invalid_input";
-        case tama::status::emptyParams: return "empty_params";
-        default: return "unknown";
-    }
-}
+using namespace tama;
+
 
 int main() {
     std::vector<double> prices{10,12,11,13,12,14,15,13,14,16};
-    std::vector<double> demaOut(prices.size());
-    tama::status res = tama::tema(prices, demaOut, 3);
-    if (res != tama::status::ok) {
-        std::cout << status_to_string(res) << std::endl;
+    std::vector<double> out(prices.size());
+
+    status res = hull(prices, out, 3);
+    if (res != status::ok) {
         return 1; 
     }
 
     std::cout<< "[ " ;
-    for (double v : demaOut) {
+    for (double v : out) {
         std::cout << v  << " ";
     }
     std::cout<< "]" <<std::endl;

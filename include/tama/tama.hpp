@@ -54,4 +54,11 @@ namespace tama {
     /// @param temaPeriod The period over which to calculate the TEMA.
     /// @return status indicating success or failure.
     status tema(std::span<const double> prices, std::vector<double>& temaOut, const uint16_t temaPeriod);
+    
+    /// Calculates the Hull Moving Average (HMA) of a price series.
+    /// @param prices Input vector of prices (Close, Open, High, Low).
+    /// @param hullOut Output vector that will contain the HMA values.
+    /// @param hullPeriod The period over which to calculate the HMA.
+    /// @return status indicating success or failure.
+    status hull(std::span<const double> prices, std::vector<double>& hullOut, const uint16_t hullPeriod);
 } // namespace tama

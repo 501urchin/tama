@@ -1,5 +1,7 @@
 #include <vector>
 #include <tama/tama.hpp>
+#include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -76,5 +78,42 @@ namespace tama {
         }
     
         return status::ok;
+    }
+
+    status hull(std::span<const double> prices, std::vector<double>& hullOut, const uint16_t hullPeriod) {
+        if (prices.empty()) {
+            return status::emptyParams;
+        }
+    
+        if (hullPeriod == 0) {
+            return status::invalidParam;
+        }
+    
+        const size_t pricesLen = prices.size();
+        if (hullOut.size() != pricesLen) {
+            hullOut.resize(pricesLen);
+        }
+
+        vector<double> wmaAOut(pricesLen);
+        vector<double> wmaBOut(pricesLen);
+
+        uint16_t p1 = static_cast<uint16_t>(std::lround(hullPeriod / 2));
+        status res = wma(prices, wmaAOut, p1);
+        if (res != status::ok) {
+            return res;
+        }
+        
+        res = wma(prices, wmaBOut, hullPeriod);
+        if (res != status::ok) {
+            return res;
+        }
+
+
+        for (size_t i = 0; i < pricesLen; ++i) {
+            wmaAOut[i] = 2.0 * wmaAOut[i] - wmaBOut[i];
+        }
+        
+        uint16_t p2 = static_cast<uint16_t>(std::lround((std::sqrt(hullPeriod))));
+        return wma(wmaAOut, hullOut, p2);
     }
 }
