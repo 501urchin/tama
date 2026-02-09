@@ -61,18 +61,18 @@ std::string status_to_string(tama::status s) {
 }
 
 
+
 int main() {
-    std::vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
-    std::vector<double> volume{100, 120, 80, 150, 130, 110, 90, 140, 100, 120};
-    std::vector<double> wmaOut(prices.size());
-    tama::status res = tama::vwma(prices, volume, wmaOut, 3);
+    std::vector<double> prices{10,12,11,13,12,14,15,13,14,16};
+    std::vector<double> demaOut(prices.size());
+    tama::status res = tama::dema(prices, demaOut, 3);
     if (res != tama::status::ok) {
         std::cout << status_to_string(res) << std::endl;
         return 1; 
     }
 
     std::cout<< "[ " ;
-    for (double v : wmaOut) {
+    for (double v : demaOut) {
         std::cout << v  << " ";
     }
     std::cout<< "]" <<std::endl;

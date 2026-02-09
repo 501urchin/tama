@@ -40,4 +40,11 @@ namespace tama {
     /// @param vwmaPeriod The period over which to calculate the VWMA.
     /// @return status indicating success or failure.
     status vwma(std::span<const double> prices, std::span<const double> volume, std::vector<double>& vwmaOut, const uint16_t vwmaPeriod);
+
+    /// Calculates the Double Exponential Moving Average (DEMA) of a price series.
+    /// @param prices Input vector of prices (Close, Open, High, Low).
+    /// @param demaOut Output vector that will contain the DEMA values.
+    /// @param demaPeriod The period over which to calculate the DEMA.
+    /// @return status indicating success or failure.
+    status dema(std::span<const double> prices, std::vector<double>& demaOut, const uint16_t demaPeriod);
 } // namespace tama
