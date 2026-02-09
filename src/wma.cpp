@@ -20,18 +20,25 @@ namespace tama {
             wmaOut.resize(pricesLen);
         }
 
-        for (size_t t = wmaPeriod-1; t < pricesLen; t++) {
-            double sum = 0;
-            double weightSum = 0;
-            for (size_t i = 0; i < wmaPeriod; i++) {
-               double weight = wmaPeriod - i;
-               weightSum += weight;
-               sum += weight * prices[t-i];
-            }
+        double wSum = wmaPeriod * (wmaPeriod + 1) / 2;
+        double sSum = 0;
+        double weightedSum = 0;
 
-            wmaOut[t] = sum / weightSum;
+
+        for (size_t i = 0; i < wmaPeriod; i++) {
+            sSum += prices[i];
+            weightedSum += prices[i] * (i+1);
         }
+        wmaOut[wmaPeriod-1] = weightedSum / wSum;
 
+        for (size_t t = wmaPeriod; t < pricesLen; t++) {
+            weightedSum -= sSum;
+            sSum -= prices[t-wmaPeriod];
+            sSum += prices[t];
+            weightedSum += prices[t] * wmaPeriod;
+
+            wmaOut[t] = weightedSum / wSum;
+        }
 
         return status::ok;
     }
