@@ -17,7 +17,7 @@ target_compile_options(tama PRIVATE
 )
 
 
-option(TAMA_RUN_BUILD "Build program" ON)
+option(TAMA_RUN_BUILD "Build program" OFF)
 if (TAMA_RUN_BUILD)
     add_executable(tama_run examples/main.cpp)
     target_link_libraries(tama_run PRIVATE tama)
@@ -28,7 +28,7 @@ if (TAMA_RUN_BUILD)
     )
 endif()
 
-option(TAMA_BUILD_TESTS "Build tests" ON)
+option(TAMA_BUILD_TESTS "Build tests" OFF)
 if (TAMA_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)

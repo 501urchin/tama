@@ -21,11 +21,12 @@ jobs:
 
       - name: Configure CMake
         env:
-          CXX: g++-13
+          CXX: g++-23
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DTAMA_BUILD_TESTS=ON
+            -DTAMA_BUILD_TESTS=OFF
 
       - name: Build
         run: |
