@@ -28,52 +28,52 @@ auto time_ns(F&& f) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
-// int main() {
-//     auto prices = make_random_vec(1000);
-//     std::vector<double> emaOut(prices.size());
+int main() {
+    auto prices = make_random_vec(1000000);
+    std::vector<double> emaOut(prices.size());
 
-//     const int64_t iterations = 100;
-//     int64_t totalTime = 0;
+    const int64_t iterations = 100;
+    int64_t totalTime = 0;
     
 
-//     for (int64_t i = 0; i < iterations; i++) {
-//         auto elapsed_ns = time_ns([&] {
-//             tama::status res = tama::ema(prices, emaOut, 100);
-//             if (res != tama::status::ok) {
-//                 std::println("tama threw an error");
-//                 std::exit(1);
-//             }
-//         });
-//         totalTime += elapsed_ns;
-//     }
+    for (int64_t i = 0; i < iterations; i++) {
+        auto elapsed_ns = time_ns([&] {
+            tama::status res = tama::dema(prices, emaOut, 100);
+            if (res != tama::status::ok) {
+                std::println("tama threw an error");
+                std::exit(1);
+            }
+        });
+        totalTime += elapsed_ns;
+    }
 
-//     std::printf("Latest EMA: %f\n", emaOut.back());
-//     std::printf("%lld iterations: %lld ns/op\n", iterations,  (totalTime / iterations));
+    std::printf("Latest EMA: %f\n", emaOut.back());
+    std::printf("%lld iterations: %lld ns/op\n", iterations,  (totalTime / iterations));
+}
+
+// std::string status_to_string(tama::status s) {
+//     switch(s) {
+//         case tama::status::ok: return "ok";
+//         case tama::status::invalidParam: return "invalid_input";
+//         case tama::status::emptyParams: return "empty_params";
+//         default: return "unknown";
+//     }
 // }
 
-std::string status_to_string(tama::status s) {
-    switch(s) {
-        case tama::status::ok: return "ok";
-        case tama::status::invalidParam: return "invalid_input";
-        case tama::status::emptyParams: return "empty_params";
-        default: return "unknown";
-    }
-}
 
 
+// int main() {
+//     std::vector<double> prices{10,12,11,13,12,14,15,13,14,16};
+//     std::vector<double> demaOut(prices.size());
+//     tama::status res = tama::tema(prices, demaOut, 3);
+//     if (res != tama::status::ok) {
+//         std::cout << status_to_string(res) << std::endl;
+//         return 1; 
+//     }
 
-int main() {
-    std::vector<double> prices{10,12,11,13,12,14,15,13,14,16};
-    std::vector<double> demaOut(prices.size());
-    tama::status res = tama::dema(prices, demaOut, 3);
-    if (res != tama::status::ok) {
-        std::cout << status_to_string(res) << std::endl;
-        return 1; 
-    }
-
-    std::cout<< "[ " ;
-    for (double v : demaOut) {
-        std::cout << v  << " ";
-    }
-    std::cout<< "]" <<std::endl;
-}
+//     std::cout<< "[ " ;
+//     for (double v : demaOut) {
+//         std::cout << v  << " ";
+//     }
+//     std::cout<< "]" <<std::endl;
+// }

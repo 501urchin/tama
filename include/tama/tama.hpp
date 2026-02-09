@@ -47,4 +47,11 @@ namespace tama {
     /// @param demaPeriod The period over which to calculate the DEMA.
     /// @return status indicating success or failure.
     status dema(std::span<const double> prices, std::vector<double>& demaOut, const uint16_t demaPeriod);
+
+    /// Calculates the Triple Exponential Moving Average (TEMA) of a price series.
+    /// @param prices Input vector of prices (Close, Open, High, Low).
+    /// @param temaOut Output vector that will contain the TEMA values.
+    /// @param temaPeriod The period over which to calculate the TEMA.
+    /// @return status indicating success or failure.
+    status tema(std::span<const double> prices, std::vector<double>& temaOut, const uint16_t temaPeriod);
 } // namespace tama

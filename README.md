@@ -6,6 +6,10 @@ Included indicators:
 
 - Simple Moving Average (SMA)
 - Exponential Moving Average (EMA)
+- Weighted Moving Average (WMA)
+- Volume-Weighted Moving Average (VWMA)
+- Double Exponential Moving Average (DEMA)
+- Triple Exponential Moving Average (TEMA)
 
 Design goals:
 

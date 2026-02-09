@@ -5,6 +5,7 @@
 using std::vector;
 
 using tama::dema;
+using tama::tema;
 using tama::status;
 
 TEST(TamaTest, DemaMatchesKnownValues) {
@@ -35,4 +36,34 @@ TEST(TamaTest, DemaRejectsInvalidParams) {
     vector<double> demaOut;
 
     EXPECT_EQ(dema(prices, demaOut, 0), status::invalidParam);
+}
+
+TEST(TamaTest, TemaMatchesKnownValues) {
+    const vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
+    const vector<double> expected{10, 11.75, 11.25, 12.8125, 12.25, 13.7969, 14.9844, 13.4102, 13.8516, 15.7178};
+    vector<double> temaOut;
+
+    tema(prices, temaOut, 3);
+
+    ASSERT_EQ(temaOut.size(), prices.size());
+    for (size_t i = 0; i < expected.size(); i++) {
+        EXPECT_NEAR(temaOut[i], expected[i], 1e-3) << "Vectors differ at index " << i;
+    }
+}
+
+TEST(TamaTest, TemaRejectsEmptyParams) {
+    const vector<double> prices{};
+    vector<double> temaOut{1.0, 2.0};
+
+    const auto result = tema(prices, temaOut, 3);
+
+    EXPECT_EQ(result, status::emptyParams);
+    EXPECT_EQ(temaOut.size(), 2u);
+}
+
+TEST(TamaTest, TemaRejectsInvalidParams) {
+    const vector<double> prices{10, 11, 12};
+    vector<double> temaOut;
+
+    EXPECT_EQ(tema(prices, temaOut, 0), status::invalidParam);
 }
