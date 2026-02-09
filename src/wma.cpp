@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace tama {    
-    status wma(const std::vector<double>& prices, std::vector<double>& wmaOut, const uint16_t wmaPeriod) {
+    status wma(std::span<const double> prices, std::vector<double>& wmaOut, const uint16_t wmaPeriod) {
         size_t pricesLen = prices.size();
 
         if (pricesLen == 0) {

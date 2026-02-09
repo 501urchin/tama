@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace tama {    
-    status sma(const vector<double>& prices, vector<double>& smaOut, const uint16_t smaPeriod) {
+    status sma(std::span<const double> prices, vector<double>& smaOut, const uint16_t smaPeriod) {
         if (prices.empty() ) {
             return status::emptyPrices;
         }

@@ -34,10 +34,11 @@ int main() {
 
     const int64_t iterations = 100;
     int64_t totalTime = 0;
+    
 
     for (int64_t i = 0; i < iterations; i++) {
         auto elapsed_ns = time_ns([&] {
-            tama::status res = tama::wma(prices, emaOut, 100);
+            tama::status res = tama::ema(prices, emaOut, 100);
             if (res != tama::status::ok) {
                 std::println("tama threw an error");
                 std::exit(1);
