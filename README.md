@@ -24,6 +24,29 @@ Design goals:
 - Implement mcginley dynamic.
 - Implement gd.
 
+## Installation
+
+```cmake
+include(FetchContent)
+
+
+# Disable tama's own tests/example binary
+set(TAMA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(TAMA_RUN_BUILD OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+	tama
+	GIT_REPOSITORY https://github.com/501urchin/tama.git
+	GIT_TAG        main
+)
+
+FetchContent_MakeAvailable(tama)
+
+# Link against the library
+target_link_libraries(your_target PRIVATE tama)
+```
+
+
 ## Example: EMA usage
 
 ```cpp
