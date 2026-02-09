@@ -10,9 +10,9 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{SMA}*t = \frac{1}{n}\sum*{i=0}^{n-1} P_{t-i}
-]
+$$
+\text{SMA}*t = \frac{1}{n} \sum*{i=0}^{n-1} P_{t-i}
+$$
 
 ---
 
@@ -22,9 +22,11 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{EMA}*t = \alpha P_t + (1-\alpha)\text{EMA}*{t-1}, \quad \alpha = \frac{2}{n+1}
-]
+$$
+\text{EMA}*t = \alpha P_t + (1-\alpha)\text{EMA}*{t-1},
+\qquad
+\alpha = \frac{2}{n+1}
+$$
 
 ---
 
@@ -34,9 +36,10 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{WMA}*t = \frac{\sum*{i=0}^{n-1} (n-i),P_{t-i}}{\sum_{i=1}^{n} i}
-]
+$$
+\text{WMA}*t =
+\frac{\sum*{i=0}^{n-1} (n-i),P_{t-i}}{\sum_{i=1}^{n} i}
+$$
 
 ---
 
@@ -46,9 +49,11 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{VWMA}*t = \frac{\sum*{i=0}^{n-1} P_{t-i}V_{t-i}}{\sum_{i=0}^{n-1} V_{t-i}}
-]
+$$
+\text{VWMA}*t =
+\frac{\sum*{i=0}^{n-1} P_{t-i} V_{t-i}}
+{\sum_{i=0}^{n-1} V_{t-i}}
+$$
 
 ---
 
@@ -58,9 +63,10 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{SMMA}*t = \frac{(n-1)\text{SMMA}*{t-1} + P_t}{n}
-]
+$$
+\text{SMMA}*t =
+\frac{(n-1)\text{SMMA}*{t-1} + P_t}{n}
+$$
 
 ---
 
@@ -70,9 +76,9 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
+$$
 \text{DEMA}_t = 2\cdot\text{EMA}_t - \text{EMA}(\text{EMA}_t)
-]
+$$
 
 ---
 
@@ -82,9 +88,14 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{TEMA}_t = 3\cdot\text{EMA}_t - 3\cdot\text{EMA}(\text{EMA}_t) + \text{EMA}(\text{EMA}(\text{EMA}_t))
-]
+$$
+\text{TEMA}_t =
+3\cdot\text{EMA}_t
+
+* 3\cdot\text{EMA}(\text{EMA}_t)
+
+- \text{EMA}(\text{EMA}(\text{EMA}_t))
+  $$
 
 ---
 
@@ -94,9 +105,13 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{HMA}_t = \text{WMA}\Big(2\cdot\text{WMA}(P, n/2) - \text{WMA}(P, n), \sqrt{n}\Big)
-]
+$$
+\text{HMA}_t =
+\text{WMA}\Big(
+2\cdot\text{WMA}(P, n/2) - \text{WMA}(P, n),
+\sqrt{n}
+\Big)
+$$
 
 ---
 
@@ -106,11 +121,14 @@ This document lists common moving averages used in trading, along with their mat
 
 **Formula:**
 
-[
-\text{KAMA}*t = \text{KAMA}*{t-1} + SC_t \cdot (P_t - \text{KAMA}_{t-1})
-]
+$$
+\text{KAMA}*t =
+\text{KAMA}*{t-1}
 
-[
-SC_t = \big[ ER_t(\alpha_f-\alpha_s) + \alpha_s \big]^2
-]
+* SC_t \cdot (P_t - \text{KAMA}_{t-1})
+  $$
 
+$$
+SC_t =
+\big[ ER_t(\alpha_f - \alpha_s) + \alpha_s \big]^2
+$$

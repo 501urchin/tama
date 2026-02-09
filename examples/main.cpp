@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <print>
+#include <iostream>
 #include <chrono>
 #include <utility>
 
@@ -27,24 +28,37 @@ auto time_ns(F&& f) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
+// int main() {
+//     auto prices = make_random_vec(1000);
+//     std::vector<double> emaOut(prices.size());
+
+//     const int64_t iterations = 100'000;
+//     int64_t totalTime = 0;
+
+//     for (int64_t i = 0; i < iterations; i++) {
+//         auto elapsed_ns = time_ns([&] {
+//             tama::status res = tama::ema(prices, emaOut, 100);
+//             if (res != tama::status::ok) {
+//                 std::println("tama threw an error");
+//                 std::exit(1);
+//             }
+//         });
+//         totalTime += elapsed_ns;
+//     }
+
+//     std::printf("Latest EMA: %f\n", emaOut.back());
+//     std::printf("%lld iterations: %lld ns/op\n", iterations,  (totalTime / iterations));
+// }
+
 int main() {
-    auto prices = make_random_vec(1000);
-    std::vector<double> emaOut(prices.size());
+    std::vector<double> prices{11,12,14,18,12,15,13,16,10};
+    std::vector<double> wmaOut(prices.size());
+    tama::status res = tama::wma(prices, wmaOut, 3);
 
-    const int64_t iterations = 100'000;
-    int64_t totalTime = 0;
-
-    for (int64_t i = 0; i < iterations; i++) {
-        auto elapsed_ns = time_ns([&] {
-            tama::status res = tama::ema(prices, emaOut, 100);
-            if (res != tama::status::ok) {
-                std::println("tama threw an error");
-                std::exit(1);
-            }
-        });
-        totalTime += elapsed_ns;
+    for (double v : wmaOut) {
+        std::cout << v << " ";
     }
 
-    std::printf("Latest EMA: %f\n", emaOut.back());
-    std::printf("%lld iterations: %lld ns/op\n", iterations,  (totalTime / iterations));
+    std::cout<<std::endl;
+    
 }
