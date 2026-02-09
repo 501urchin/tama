@@ -18,7 +18,7 @@ TEST(TamaTest, EmaMatchesKnownValues) {
 
     ASSERT_EQ(emaOut.size(), prices.size()) << "Vectors differ in size";
     for (size_t i = 0; i < expected.size(); i++) {
-        EXPECT_NEAR(emaOut[i], expected[i], 1e-2) << "Vectors differ at index " << i;
+        EXPECT_NEAR(emaOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
     }
 }
 

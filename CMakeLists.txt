@@ -17,7 +17,7 @@ target_compile_options(tama PRIVATE
 )
 
 
-option(TAMA_RUN_BUILD "Build run program" ON)
+option(TAMA_RUN_BUILD "Build program" ON)
 if (TAMA_RUN_BUILD)
     add_executable(tama_run examples/main.cpp)
     target_link_libraries(tama_run PRIVATE tama)
