@@ -5,26 +5,31 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-file(GLOB TAMA_SOURCES CONFIGURE_DEPENDS
-    src/*.cpp
-)
+file(GLOB TAMA_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 add_library(tama ${TAMA_SOURCES})
 target_include_directories(tama PUBLIC include)
 target_compile_options(tama PRIVATE -Wall -Wextra -Wpedantic)
 
+target_compile_options(tama PRIVATE
+    $<$<CONFIG:Release>:-O3 -march=native -flto>
+    $<$<CONFIG:Debug>:-O0 -g>
+)
 
 
 option(TAMA_RUN_BUILD "Build run program" ON)
 if (TAMA_RUN_BUILD)
-    add_executable(tama_run examples/main.cpp ${TAMA_SOURCES})
+    add_executable(tama_run examples/main.cpp)
     target_link_libraries(tama_run PRIVATE tama)
-    target_compile_options(tama_run PRIVATE -O3 -ffast-math  -Wall)
+    target_compile_options(tama_run PRIVATE
+        $<$<CONFIG:Release>:-O3 -ffast-math -march=native -flto>
+        $<$<CONFIG:Debug>:-O0 -g>
+        -Wall
+    )
 endif()
 
 
 option(TAMA_BUILD_TESTS "Build tests" ON)
-
 if (TAMA_BUILD_TESTS)
     include(FetchContent)
     FetchContent_Declare(
@@ -35,10 +40,7 @@ if (TAMA_BUILD_TESTS)
 
     enable_testing()
 
-    file(GLOB TEST_SOURCES CONFIGURE_DEPENDS
-        tests/*.cpp
-    )
-
+    file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
     add_executable(tests ${TEST_SOURCES})
     target_link_libraries(tests PRIVATE tama gtest_main)
     target_include_directories(tests PRIVATE ${gtest_SOURCE_DIR}/include)
@@ -46,5 +48,3 @@ if (TAMA_BUILD_TESTS)
     include(GoogleTest)
     gtest_discover_tests(tests)
 endif()
-
-

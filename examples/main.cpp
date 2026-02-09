@@ -46,5 +46,5 @@ int main() {
     }
 
     std::printf("Latest EMA: %f\n", emaOut.back());
-    std::printf("%d iterations: %lld ns/op\n", iterations,  (totalTime / iterations));
+    std::printf("%lld iterations: %lld ns/op\n", iterations,  (totalTime / iterations));
 }
