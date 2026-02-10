@@ -5,6 +5,10 @@ using namespace std;
 
 
 namespace tama {
+    // an idea could be to cache calculations. we create a obj containign the len of prices, emsValues, len period. 
+    // on func call we check cache if no change to values we retrun the cache obj
+    // if change to lets say price we calculate starting from last calcukated
+    // if emaperiod changes we create a new calculation and new obj
     status ema(std::span<const double> prices, vector<double>& emaOut, const uint16_t emaPeriod) {
         if (prices.empty() ) {
             return status::emptyParams;
