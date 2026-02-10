@@ -6,6 +6,8 @@
 #include <immintrin.h>
 #endif
 
+
+// TODO: apparently on x86_64 the tests fail. switch to non arm computer and eval why
 namespace tama::helpers {
     float simdSumF32(std::span<const float> elms) {
         float sum = 0.0f;
