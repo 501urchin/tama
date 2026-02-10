@@ -35,6 +35,9 @@ float simdSumF32(std::span<const float> elms) {
         sum += _mm_cvtss_f32(t2);
     #endif
 
+    for (; i < n; i++) {
+        sum += elms[i];
+    }
 
     return sum;
 }
