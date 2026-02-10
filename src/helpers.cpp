@@ -37,7 +37,6 @@ namespace tama::helpers {
             }
 
             __m256 acc = _mm256_setzero_ps();
-    
             for (; i + 8 <= n; i += 8) {
                 acc = _mm256_add_ps(acc, _mm256_loadu_ps(&elms[i]));
             }
@@ -95,10 +94,7 @@ namespace tama::helpers {
             __m128d hi = _mm256_extractf128_pd(acc, 1);
             __m128d sum2 = _mm_add_pd(lo, hi);
     
-            __m128d l1 = _mm_hadd_pd(sum2, sum2);
-            __m128d l2 = _mm_hadd_pd(l1, l1);
-    
-            sum +=   _mm_cvtsd_f64(l2);
+            sum += _mm_cvtsd_f64(_mm_hadd_pd(sum2, sum2));
         #endif
     
     
