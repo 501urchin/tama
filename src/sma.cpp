@@ -1,6 +1,8 @@
 #include <vector>
 #include <tama/tama.hpp>
+#include "helpers.cpp"
 #include <algorithm>
+#include <span>
 
 using namespace std;
 
@@ -20,13 +22,8 @@ namespace tama {
         }
         std::fill(smaOut.begin(), smaOut.begin() + smaPeriod-1, 0);
 
-        const double alpha = 1 / double(smaPeriod);
-        double sum = 0.0;
-        
-        
-        for (uint16_t i = 0; i < smaPeriod; i++ ) {
-            sum += prices[smaPeriod-i-1];
-        }
+        const double alpha = 1.0 / static_cast<double>(smaPeriod);
+        double sum = helpers::simdSum<double>(prices.subspan(0, smaPeriod));
         smaOut[smaPeriod-1] = alpha * sum;
         
         for (size_t t = smaPeriod; t < pricesLen; t++ ) {

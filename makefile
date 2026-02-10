@@ -26,14 +26,14 @@ build: configure
 
 # Build & run the example program
 run: configure
-	@$(CMAKE) -S . -B $(BUILD_DIR)  -DTAMA_RUN_BUILD=ON -DTAMA_BUILD_TESTS=OFF > /dev/null 2>&1
+	@$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release -DTAMA_RUN_BUILD=ON -DTAMA_BUILD_TESTS=OFF > /dev/null 2>&1
 	@$(CMAKE) --build $(BUILD_DIR) --parallel 
 	@./$(BUILD_DIR)/tama_run
 
 # Build & run tests
 test: configure
 	@$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug -DTAMA_BUILD_TESTS=ON -DTAMA_RUN_BUILD=OFF > /dev/null 2>&1
-	@$(CMAKE) --build $(BUILD_DIR) --parallel > /dev/null 2>&1
+	@$(CMAKE) --build $(BUILD_DIR) --parallel 
 	@$(CTEST) --test-dir $(BUILD_DIR) --output-on-failure
 
 clean:
