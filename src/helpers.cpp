@@ -51,7 +51,7 @@ double simdSumF64(std::span<const double> elms) {
         }
         sum += vaddvq_f64(acc);
     #elif defined(__x86_64__) || defined(_M_X64)
-        __m256 acc = _mm256_setzero_pd();
+        __m256d acc = _mm256_setzero_pd();
         for (; i + 4 <= n; i += 4) {
             acc = _mm256_add_pd(acc, _mm256_loadu_pd(&elms[i]));
         }
@@ -62,7 +62,6 @@ double simdSumF64(std::span<const double> elms) {
 
         __m128d l1 = _mm_hadd_pd(sum2, sum2);
         __m128d l2 = _mm_hadd_pd(l1, l1);
-
 
         sum +=   _mm_cvtsd_f64(l2);
     #endif
