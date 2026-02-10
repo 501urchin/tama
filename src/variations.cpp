@@ -1,7 +1,6 @@
 #include <vector>
 #include <tama/tama.hpp>
 #include <cmath>
-#include <iostream>
 
 using namespace std;
 
