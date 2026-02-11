@@ -22,7 +22,7 @@ namespace tama {
         std::fill(smaOut.begin(), smaOut.begin() + smaPeriod-1, 0);
 
         const double alpha = 1.0 / static_cast<double>(smaPeriod);
-        double sum = helpers::simdSum<double>(prices.subspan(0, smaPeriod));
+        double sum = helpers::simdSum(prices.subspan(0, smaPeriod));
         smaOut[smaPeriod-1] = alpha * sum;
         
         for (size_t t = smaPeriod; t < pricesLen; t++ ) {

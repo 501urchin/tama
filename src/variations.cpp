@@ -32,6 +32,7 @@ namespace tama {
             return res;
         }
     
+        // simd
         for (size_t i = 0; i < pricesLen; i++) {
             demaOut[i] = 2 * emaAOut[i] - emaBOut[i];
         }
@@ -72,6 +73,7 @@ namespace tama {
             return res;
         }
     
+        // simd
         for (size_t i = 0; i < pricesLen; i++) {
             temaOut[i] = 3 * emaAOut[i] - 3 * emaBOut[i] + emaCOut[i];
         }
@@ -108,6 +110,7 @@ namespace tama {
         }
 
 
+        // simd
         for (size_t i = 0; i < pricesLen; ++i) {
             wmaAOut[i] = 2.0 * wmaAOut[i] - wmaBOut[i];
         }

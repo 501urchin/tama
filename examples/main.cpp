@@ -32,7 +32,7 @@ long long measure_ns(F&& f, Args&&... args) {
 }
 
 int main() {
-    std::size_t n = 1'000'000;
+    std::size_t n = 1'000'00;
     std::vector<double> prices = make_random_doubles(n, 1.0, 100.0);
     std::vector<double> out(prices.size());
 

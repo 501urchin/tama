@@ -24,6 +24,7 @@ namespace tama {
         double numeratorSum = 0;
         double denominatorSum = 0;
 
+        // simd
         for (size_t i = 0; i < vwmaPeriod; i++) {
             numeratorSum += prices[i] * volume[i];
             denominatorSum += volume[i];
