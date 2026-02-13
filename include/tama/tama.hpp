@@ -11,7 +11,7 @@ namespace tama {
         emptyParams,
         invalidParam
     };
-    
+
     /// Calculates the Exponential Moving Average (EMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param emaOut Output vector that will contain the EMA values.
@@ -70,3 +70,4 @@ namespace tama {
     /// @return status indicating success or failure.
     status md(std::span<const double> prices, std::vector<double>& mdOut, uint16_t mdPeriod);
  } // namespace tama
+ 

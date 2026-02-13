@@ -27,7 +27,7 @@ namespace tama {
         }
         size_t pricesLen = prices.size();
 
-        if (emaOut.size() != pricesLen) {
+        if (emaOut.size() < pricesLen) {
             emaOut.resize(pricesLen);
         }
         emaOut[0] = prices[0];

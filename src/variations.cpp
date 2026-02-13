@@ -15,7 +15,7 @@ namespace tama {
         }
     
         const size_t pricesLen = prices.size();
-        if (demaOut.size() != pricesLen) {
+        if (demaOut.size() < pricesLen) {
             demaOut.resize(pricesLen);
         }
     

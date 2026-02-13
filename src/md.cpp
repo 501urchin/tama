@@ -16,7 +16,7 @@ namespace tama {
         }
         size_t pricesLen = prices.size();
 
-        if (mdOut.size() != pricesLen) {
+        if (mdOut.size() < pricesLen) {
             mdOut.resize(pricesLen);
         }
 

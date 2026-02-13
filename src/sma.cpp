@@ -16,7 +16,7 @@ namespace tama {
             return status::invalidParam;
         }
 
-        if (smaOut.size() != pricesLen) {
+        if (smaOut.size() < pricesLen) {
             smaOut.resize(pricesLen);
         }
         std::fill(smaOut.begin(), smaOut.begin() + smaPeriod-1, 0);

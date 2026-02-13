@@ -16,7 +16,7 @@ namespace tama {
             return status::invalidParam;
         }
 
-        if (vwmaOut.size() != pricesLen) {
+        if (vwmaOut.size() < pricesLen) {
             vwmaOut.resize(pricesLen);
         }
 
