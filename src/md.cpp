@@ -23,9 +23,13 @@ namespace tama {
         mdOut[0] = prices[0];
 
         for (size_t t = 1; t < pricesLen; t++) {
-            double numerator = prices[t] - mdOut[t-1];
-            double denominator = mdPeriod * pow((prices[t] / mdOut[t-1]), 4);
-            mdOut[t] = mdOut[t-1] + (numerator / denominator);
+            double pt = prices[t];
+            double mt = mdOut[t-1];
+
+            double numerator = pt - mt;
+            double denominator = static_cast<double>(mdPeriod) * pow((pt / mt), 4);
+
+            mdOut[t] = mt + (numerator / denominator);
         }
 
         return status::ok;

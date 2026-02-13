@@ -37,7 +37,7 @@ int main() {
     std::vector<double> out(prices.size());
 
     long long ns = measure_ns([&] {
-        status res = md(prices, out, 10);
+        status res = md(prices, out, 50);
         if (res != status::ok) {
             std::cerr << "func failed with status " << static_cast<int>(res) << '\n';
         }
