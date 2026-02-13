@@ -27,9 +27,9 @@ namespace tama {
             double mt = mdOut[t-1];
 
             double numerator = pt - mt;
-            double denominator = static_cast<double>(mdPeriod) * pow((pt / mt), 4);
+            double denominator = static_cast<double>(mdPeriod) * pow(pt / mt, 4.0);
 
-            mdOut[t] = mt + (numerator / denominator);
+            mdOut[t] = numerator / denominator + mt;
         }
 
         return status::ok;
