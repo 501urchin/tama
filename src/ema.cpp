@@ -4,11 +4,19 @@
 using namespace std;
 
 
+// One approach is to cache calculations:
+// - Create an object that stores the length of prices, EMA values, and the EMA period.
+// - On function call, check the cache: 
+//     - If input values haven’t changed, return the cached object.
+//     - If new prices are added, continue calculations from the last computed point.
+//     - If the EMA period changes, perform a full recalculation and create a new object.
+
+// Another approach is to maintain a global structure:
+// - Store all prices and a vector of EMA values.
+// - When new prices are added (e.g., caller passes a span of length 3):
+//     - Append the new prices to the global price vector.
+//     - Calculate EMA only for the new entries, instead of recalculating the entire sequence.
 namespace tama {
-    // an idea could be to cache calculations. we create a obj containign the len of prices, emsValues, len period. 
-    // on func call we check cache if no change to values we retrun the cache obj
-    // if change to lets say price we calculate starting from last calcukated
-    // if emaperiod changes we create a new calculation and new obj
     status ema(std::span<const double> prices, vector<double>& emaOut, const uint16_t emaPeriod) {
         if (prices.empty() ) {
             return status::emptyParams;
