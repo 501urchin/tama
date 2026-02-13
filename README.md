@@ -10,8 +10,8 @@ Included indicators:
 - Volume-Weighted Moving Average (VWMA)
 - Double Exponential Moving Average (DEMA)
 - Triple Exponential Moving Average (TEMA)
- - Hull Moving Average (HMA)
- - McGinley Dynamic (MD)
+- Hull Moving Average (HMA)
+- McGinley Dynamic (MD)
 
 Design goals:
 
@@ -46,7 +46,6 @@ FetchContent_MakeAvailable(tama)
 # Link against the library
 target_link_libraries(your_target PRIVATE tama)
 ```
-
 
 ## Example usage
 
