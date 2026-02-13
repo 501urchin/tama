@@ -37,11 +37,11 @@ int main() {
     std::vector<double> out(prices.size());
 
     long long ns = measure_ns([&] {
-        status res = sma(prices, out, 100);
+        status res = md(prices, out, 10);
         if (res != status::ok) {
             std::cerr << "func failed with status " << static_cast<int>(res) << '\n';
         }
     });
 
-    std::cout << "execution time: " << ns << " ns" << std::endl;
+    std::cout << "execution time: " << static_cast<double>(ns) / 1'000'000.0 << " ms" << std::endl;
 }

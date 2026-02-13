@@ -61,4 +61,12 @@ namespace tama {
     /// @param hullPeriod The period over which to calculate the HMA.
     /// @return status indicating success or failure.
     status hull(std::span<const double> prices, std::vector<double>& hullOut, const uint16_t hullPeriod);
-} // namespace tama
+
+    /// Calculates the McGinley Dynamic (MD), an adaptive moving average that
+    /// adjusts its speed based on market volatility to reduce whipsaws.
+    /// @param prices Input vector of prices (typically Close).
+    /// @param mdOut Output vector that will contain the McGinley Dynamic values.
+    /// @param mdPeriod The base lookback period used in the MD calculation.
+    /// @return status indicating success or failure.
+    status md(std::span<const double> prices, std::vector<double>& mdOut, uint16_t mdPeriod);
+ } // namespace tama

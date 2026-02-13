@@ -12,16 +12,6 @@ $$
 
 ---
 
-### McGinley Dynamic (MD)
-
-**Description:** Adaptive moving average that adjusts smoothing based on price speed to reduce lag.
-
-$$
-MD_t = MD_{t-1} + \frac{P_t - MD_{t-1}}{k \cdot \frac{P_t}{MD_{t-1}}}
-$$
-
----
-
 ### Generalized Double Exponential Moving Average (GD)
 
 **Description:** Reduces EMA lag using a weighted second EMA; tuning weight controls aggressiveness.

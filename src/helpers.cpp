@@ -18,7 +18,7 @@ namespace tama::helpers {
 
         size_t i = 0;
     
-#if defined(__aarch64__) || defined(_M_ARM64)
+        #if defined(__aarch64__) || defined(_M_ARM64)
         if (n < 2) {
             for (; i < n; i++) {sum += elms[i];}
             return sum;
@@ -29,7 +29,7 @@ namespace tama::helpers {
             acc = vaddq_f64(acc, vld1q_f64(&elms[i]));
         }
         sum += vaddvq_f64(acc);
-#elif defined(__x86_64__) || defined(_M_X64)
+        #elif defined(__x86_64__) || defined(_M_X64)
         if (n < 4) {
             for (; i < n; i++) {sum += elms[i];}
             return sum;
@@ -45,7 +45,7 @@ namespace tama::helpers {
         __m128d sum2 = _mm_add_pd(lo, hi);
 
         sum += _mm_cvtsd_f64(_mm_hadd_pd(sum2, sum2));
-#endif
+        #endif
     
     
 

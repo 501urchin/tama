@@ -10,6 +10,8 @@ Included indicators:
 - Volume-Weighted Moving Average (VWMA)
 - Double Exponential Moving Average (DEMA)
 - Triple Exponential Moving Average (TEMA)
+ - Hull Moving Average (HMA)
+ - McGinley Dynamic (MD)
 
 Design goals:
 
@@ -20,7 +22,6 @@ Design goals:
 
 - Add a way to reuse previous calculation. A idea could be to add a optionnal 'prevCalc' param to each func and if its not empty use it
 - Implement kama.
-- Implement mcginley dynamic.
 - Implement Generalized dema.
 - Implement frama.
 
