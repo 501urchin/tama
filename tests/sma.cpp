@@ -4,16 +4,14 @@
 
 using std::vector;
 
-using tama::sma;
 
-
-TEST(TamaTest, SmaMatchesKnownValues)
-{
+TEST(TamaTest, SmaMatchesKnownValues) {
     const vector<double> prices{11, 12, 14, 18, 12, 15, 13, 16, 10};
     const vector<double> expected{0, 0, 12.333, 14.667, 14.667, 15, 13.333, 14.667, 13};
     vector<double> smaOut;
 
-    sma(prices, smaOut, 3);
+    SimpleMovingAverage smaCalc(3);
+    smaCalc.compute(prices, smaOut);
 
     ASSERT_EQ(smaOut.size(), prices.size());
     for (size_t i = 0; i < expected.size(); i++)
@@ -22,22 +20,23 @@ TEST(TamaTest, SmaMatchesKnownValues)
     }
 }
 
-TEST(TamaTest, SmaRejectsemptyParams)
-{
+TEST(TamaTest, SmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> smaOut{1.0, 2.0};
+    SimpleMovingAverage smaCalc(3);
 
-    const auto result = sma(prices, smaOut, 3);
+    const auto result = smaCalc.compute(prices, smaOut);
 
     EXPECT_EQ(result, status::emptyParams);
     EXPECT_EQ(smaOut.size(), 2u);
 }
 
-TEST(TamaTest, SmaRejectsInvalidParams)
-{
+TEST(TamaTest, SmaRejectsInvalidParams) {
     const vector<double> prices{10, 11, 12};
     vector<double> smaOut;
+    SimpleMovingAverage smaCalcInvalid(0);
+    SimpleMovingAverage smaCalcEqualSize(3);
 
-    EXPECT_EQ(sma(prices, smaOut, 0), status::invalidParam);
-    EXPECT_EQ(sma(prices, smaOut, 3), status::invalidParam);
+    EXPECT_EQ(smaCalcInvalid.compute(prices, smaOut), status::invalidParam);
+    EXPECT_EQ(smaCalcEqualSize.compute(prices, smaOut), status::invalidParam);
 }

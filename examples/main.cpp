@@ -41,99 +41,27 @@ void benchmark(const char* name, F&& f, int iterations = 10) {
 
 
 
-void newEma() {
+
+int main() {
     std::vector<double> prices = make_random_doubles(100'000, 1.0, 100.0);
 
 
 
-    ExponentialMovingAverage ema(50);
+    SimpleMovingAverage sma(50);
     std::vector<double> out;
-    status s = ema.compute(prices, out);
+    status s = sma.compute(prices, out);
 
     std::cout << out.back() << std::endl;
     double newVal = 15.45;
     prices.push_back(newVal);
-    double lema = ema.update(newVal);
+    double lema = sma.update(newVal);
     std::cout << lema << std::endl;
 
 
     std::vector<double> o1;
-    tama::ema(prices, o1, 50);
+    SimpleMovingAverage sma2(50);
+    sma2.compute(prices, o1);
     std::cout << o1.back() << std::endl;
-
-}
-
-
-int main() {
-    std::size_t n = 100'000;
-    std::vector<double> prices = make_random_doubles(n, 1.0, 100.0);
-    std::vector<double> volume = make_random_doubles(n, 100.0, 10'000.0);
-
-    std::vector<double> out(prices.size());
-    std::vector<double> out2(prices.size());
-
-    const uint16_t period = 50;
-    const int iterations = 10;
-
-
-
-    newEma();
-
-    benchmark("SMA", [&] {
-        status res = sma(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "SMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("EMA", [&] {
-        status res = ema(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "EMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("WMA", [&] {
-        status res = wma(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "WMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("VWMA", [&] {
-        status res = vwma(prices, volume, out, period);
-        if (res != status::ok) {
-            std::cerr << "VWMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("DEMA", [&] {
-        status res = dema(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "DEMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("TEMA", [&] {
-        status res = tema(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "TEMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("HMA", [&] {
-        status res = hull(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "HMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("MD", [&] {
-        status res = md(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "MD failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
 
     return 0;
 }

@@ -19,9 +19,22 @@ private:
     double alpha;
     double oma;
     bool initalized = false;
-
 public:
     ExponentialMovingAverage(uint16_t period, double prevCalculation = 0);
+    status compute(std::span<const double> prices, std::vector<double>& output);
+    double update(double price);
+    double latest();
+};
+
+class SimpleMovingAverage {    
+private:
+    double alpha;
+    size_t period;
+    std::vector<double> priceBuf;
+    bool initalized = false;
+    double lastSma;
+public:
+    SimpleMovingAverage(uint16_t period);
     status compute(std::span<const double> prices, std::vector<double>& output);
     double update(double price);
     double latest();
@@ -30,14 +43,9 @@ public:
 
 
 
-namespace tama {
-    /// Calculates the Simple Moving Average (SMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param smaOut Output vector that will contain the SMA values.
-    /// @param smaPeriod The period over which to calculate the SMA.
-    /// @return status indicating success or failure.
-    status sma(std::span<const double>  prices, std::vector<double>& smaOut, const uint16_t smaPeriod);
 
+
+namespace tama {
     /// Calculates the Weighted Moving Average (WMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param wmaOut Output vector that will contain the WMA values.
