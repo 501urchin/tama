@@ -5,7 +5,7 @@
 using std::vector;
 
 using tama::vwma;
-using tama::status;
+
 
 TEST(TamaTest, VwmaMatchesKnownValues) {
     const vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};

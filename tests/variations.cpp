@@ -7,7 +7,7 @@ using std::vector;
 using tama::dema;
 using tama::tema;
 using tama::hull;
-using tama::status;
+
 
 TEST(TamaTest, DemaMatchesKnownValues) {
     const vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};

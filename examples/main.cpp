@@ -38,6 +38,32 @@ void benchmark(const char* name, F&& f, int iterations = 10) {
     std::printf("%-5s -> %5.3f ms/op\n", name, avg_ms);
 }
 
+
+
+
+void newEma() {
+    std::vector<double> prices = make_random_doubles(100'000, 1.0, 100.0);
+
+
+
+    ExponentialMovingAverage ema(50);
+    std::vector<double> out;
+    status s = ema.compute(prices, out);
+
+    std::cout << out.back() << std::endl;
+    double newVal = 15.45;
+    prices.push_back(newVal);
+    double lema = ema.update(newVal);
+    std::cout << lema << std::endl;
+
+
+    std::vector<double> o1;
+    tama::ema(prices, o1, 50);
+    std::cout << o1.back() << std::endl;
+
+}
+
+
 int main() {
     std::size_t n = 100'000;
     std::vector<double> prices = make_random_doubles(n, 1.0, 100.0);
@@ -48,6 +74,10 @@ int main() {
 
     const uint16_t period = 50;
     const int iterations = 10;
+
+
+
+    newEma();
 
     benchmark("SMA", [&] {
         status res = sma(prices, out, period);

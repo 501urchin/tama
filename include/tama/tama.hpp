@@ -5,20 +5,32 @@
 #include <span>
 
 
+enum class status : uint8_t {
+    ok,
+    emptyParams,
+    invalidParam
+};
+
+
+class ExponentialMovingAverage {
+private:
+    double lastEma;
+    double period;
+    double alpha;
+    double oma;
+    bool initalized = false;
+
+public:
+    ExponentialMovingAverage(uint16_t period, double prevCalculation = 0);
+    status compute(std::span<const double> prices, std::vector<double>& output);
+    double update(double price);
+    double latest();
+};
+
+
+
+
 namespace tama {
-    enum class status : uint8_t {
-        ok,
-        emptyParams,
-        invalidParam
-    };
-
-    /// Calculates the Exponential Moving Average (EMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param emaOut Output vector that will contain the EMA values.
-    /// @param emaPeriod The period over which to calculate the EMA.
-    /// @return status indicating success or failure.
-    status ema(std::span<const double>  prices, std::vector<double>& emaOut, const uint16_t emaPeriod);
-
     /// Calculates the Simple Moving Average (SMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param smaOut Output vector that will contain the SMA values.
@@ -70,4 +82,3 @@ namespace tama {
     /// @return status indicating success or failure.
     status md(std::span<const double> prices, std::vector<double>& mdOut, uint16_t mdPeriod);
  } // namespace tama
- 

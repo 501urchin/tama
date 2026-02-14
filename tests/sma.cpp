@@ -5,24 +5,25 @@
 using std::vector;
 
 using tama::sma;
-using tama::status;
 
-TEST(TamaTest, SmaMatchesKnownValues) {
-    const vector<double> prices{11,12,14,18,12,15,13,16,10};
-    const vector<double> expected{0,0,12.333,14.667,14.667,15,13.333,14.667,13};
+
+TEST(TamaTest, SmaMatchesKnownValues)
+{
+    const vector<double> prices{11, 12, 14, 18, 12, 15, 13, 16, 10};
+    const vector<double> expected{0, 0, 12.333, 14.667, 14.667, 15, 13.333, 14.667, 13};
     vector<double> smaOut;
 
     sma(prices, smaOut, 3);
 
     ASSERT_EQ(smaOut.size(), prices.size());
-    for (size_t i = 0; i < expected.size(); i++) {
+    for (size_t i = 0; i < expected.size(); i++)
+    {
         EXPECT_NEAR(smaOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
     }
 }
 
-
-
-TEST(TamaTest, SmaRejectsemptyParams) {
+TEST(TamaTest, SmaRejectsemptyParams)
+{
     const vector<double> prices{};
     vector<double> smaOut{1.0, 2.0};
 
@@ -32,8 +33,8 @@ TEST(TamaTest, SmaRejectsemptyParams) {
     EXPECT_EQ(smaOut.size(), 2u);
 }
 
-
-TEST(TamaTest, SmaRejectsInvalidParams) {
+TEST(TamaTest, SmaRejectsInvalidParams)
+{
     const vector<double> prices{10, 11, 12};
     vector<double> smaOut;
 

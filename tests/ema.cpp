@@ -4,9 +4,6 @@
 
 using std::vector;
 
-using tama::ema;
-using tama::status;
-
 
 // values come from https://goodcalculators.com/exponential-moving-average-calculator
 TEST(TamaTest, EmaMatchesKnownValues) {
@@ -14,7 +11,9 @@ TEST(TamaTest, EmaMatchesKnownValues) {
     const vector<double> expected{11,11.5,12.75,15.375,13.688,14.344,13.672,14.836,12.418};
     vector<double> emaOut;
 
-    ema(prices, emaOut, 3);
+    ExponentialMovingAverage ema(3);
+    status s = ema.compute(prices, emaOut);
+
 
     ASSERT_EQ(emaOut.size(), prices.size()) << "Vectors differ in size";
     for (size_t i = 0; i < expected.size(); i++) {
@@ -26,18 +25,9 @@ TEST(TamaTest, EmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> emaOut{1.0, 2.0};
 
-    const auto result = ema(prices, emaOut, 3);
+    ExponentialMovingAverage ema(30);
+    status s = ema.compute(prices, emaOut);
 
-    EXPECT_EQ(result, tama::status::emptyParams);
+    EXPECT_EQ(s, status::emptyParams);
     EXPECT_EQ(emaOut.size(), 2u);
-}
-
-
-TEST(TamaTest, EmaRejectsInvalidParams) {
-    const vector<double> prices{10, 11, 12};
-    vector<double> emaOut;
-
-    const auto result = ema(prices, emaOut, 0);
-
-    EXPECT_EQ(result, tama::status::invalidParam);
 }

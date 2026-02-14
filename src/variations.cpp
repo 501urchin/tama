@@ -21,13 +21,15 @@ namespace tama {
     
         vector<double> emaAOut(pricesLen);
         vector<double> emaBOut(pricesLen);
-    
-        status res = ema(prices, emaAOut, demaPeriod);
+
+        ExponentialMovingAverage ema(demaPeriod);
+        status res = ema.compute(prices, emaAOut);
         if (res != status::ok) {
             return res;
         }
     
-        res = ema(emaAOut, emaBOut, demaPeriod);
+        ExponentialMovingAverage ema2(demaPeriod);
+        res = ema2.compute(emaAOut, emaBOut);
         if (res != status::ok) {
             return res;
         }
@@ -58,20 +60,25 @@ namespace tama {
         vector<double> emaBOut(pricesLen);
         vector<double> emaCOut(pricesLen);
     
-        status res = ema(prices, emaAOut, temaPeriod);
+
+        ExponentialMovingAverage ema(temaPeriod);
+        status res = ema.compute(prices, emaAOut);
         if (res != status::ok) {
             return res;
         }
     
-        res = ema(emaAOut, emaBOut, temaPeriod);
+        ExponentialMovingAverage ema2(temaPeriod);
+        res = ema2.compute(emaAOut, emaBOut);
         if (res != status::ok) {
             return res;
         }
     
-        res = ema(emaBOut, emaCOut, temaPeriod);
+        ExponentialMovingAverage ema3(temaPeriod);
+        res = ema2.compute(emaBOut, emaCOut);
         if (res != status::ok) {
             return res;
         }
+    
     
         // simd
         for (size_t i = 0; i < pricesLen; i++) {
