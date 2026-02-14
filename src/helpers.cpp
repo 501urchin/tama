@@ -7,7 +7,7 @@
 #include <immintrin.h>
 #endif
 
-namespace tama::helpers {
+namespace helpers {
 
 double simdSum(std::span<const double> elms) {
     double sum = 0.0;
