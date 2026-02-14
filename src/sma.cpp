@@ -6,10 +6,25 @@
 
 using namespace tama::helpers;
 
-SimpleMovingAverage::SimpleMovingAverage(uint16_t period) {
+SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc) {
     this->period = period;
-    this->alpha = 1.0 / static_cast<double>(period);
-    this->priceBuf = std::vector<double>(period);
+    this->lastSma = 0.0;
+
+    if (this->period == 0) {
+        this->alpha = 0.0;
+        return;
+    }
+
+    this->alpha = 1.0 / static_cast<double>(this->period);
+
+    if (prevCalc.size() >= this->period) {
+        const size_t offset = prevCalc.size() - this->period;
+        this->priceBuf.assign(prevCalc.begin() + static_cast<std::ptrdiff_t>(offset), prevCalc.end());
+        this->lastSma = this->alpha * simdSum(this->priceBuf);
+        this->initalized = true;
+    } else {
+        this->priceBuf = std::vector<double>(this->period);
+    }
 }
 
 double SimpleMovingAverage::latest() {

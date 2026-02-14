@@ -1,13 +1,21 @@
 #include <vector>
+#include <cmath>
 #include <tama/tama.hpp>
 
 using namespace std;
 
 ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation) {
     this->period = static_cast<double>(period);
-    this->alpha = 2 / (this->period + 1);
-    this->oma = 1 - alpha;
-    if (prevCalculation > 0) {
+    if (period == 0) {
+        this->alpha = 0.0;
+        this->oma = 0.0;
+        this->lastEma = 0.0;
+        return;
+    }
+
+    this->alpha = 2.0 / (this->period + 1.0);
+    this->oma = 1.0 - alpha;
+    if (!std::isnan(prevCalculation)) {
         this->lastEma = prevCalculation;
         this->initalized = true;
     }
