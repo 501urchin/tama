@@ -3,6 +3,7 @@
 #include <vector>
 
 using std::vector;
+using namespace tama;
 
 
 TEST(TamaTest, SmaMatchesKnownValues) {

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation) {
+tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation) {
     this->period = static_cast<double>(period);
     if (period == 0) {
         this->alpha = 0.0;
@@ -23,7 +23,7 @@ ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevC
 
 
 
-status ExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output){
+status tama::ExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output){
     if (prices.empty() ) {
         return status::emptyParams;
     }
@@ -48,7 +48,7 @@ status ExponentialMovingAverage::compute(std::span<const double> prices, std::ve
     return status::ok;
 }
 
-double ExponentialMovingAverage::update(double price){
+double tama::ExponentialMovingAverage::update(double price){
     if (!this->initalized) {
         return 0.0;
     }
@@ -58,6 +58,6 @@ double ExponentialMovingAverage::update(double price){
     return ema;
 }
 
-double ExponentialMovingAverage::latest(){
+double tama::ExponentialMovingAverage::latest(){
     return this->lastEma;
 }

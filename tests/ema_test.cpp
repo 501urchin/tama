@@ -4,6 +4,8 @@
 
 using std::vector;
 
+using namespace tama;
+
 
 // values come from https://goodcalculators.com/exponential-moving-average-calculator
 TEST(TamaTest, EmaMatchesKnownValues) {

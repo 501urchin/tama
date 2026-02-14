@@ -12,64 +12,6 @@ enum class status : uint8_t {
 };
 
 
-/// Stateful Exponential Moving Average (EMA) indicator.
-/// Supports both batch computation and single-tick updates.
-class ExponentialMovingAverage {
-private:
-    double lastEma;
-    double period;
-    double alpha;
-    double oma;
-    bool initalized = false;
-public:
-    /// Creates an EMA indicator instance.
-    /// @param period Lookback period used to derive the EMA smoothing factor.
-    /// @param prevCalculation Optional previous EMA value used as warm start.
-    ExponentialMovingAverage(uint16_t period, double prevCalculation = 0);
-
-    /// Computes EMA values for the full input series.
-    /// @param prices Input price series.
-    /// @param output Output vector resized/written with EMA values.
-    /// @return status indicating success or failure.
-    status compute(std::span<const double> prices, std::vector<double>& output);
-
-    /// Updates the EMA with a single new price sample.
-    /// @param price New price value.
-    /// @return Updated EMA value.
-    double update(double price);
-
-    /// Returns the latest EMA value stored by the indicator.
-    double latest();
-};
-
-/// Stateful Simple Moving Average (SMA) indicator.
-/// Supports both batch computation and single-tick updates.
-class SimpleMovingAverage {    
-private:
-    double alpha;
-    size_t period;
-    std::vector<double> priceBuf;
-    bool initalized = false;
-    double lastSma;
-public:
-    /// Creates an SMA indicator instance.
-    /// @param period Number of samples used in the SMA window.
-    SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
-
-    /// Computes SMA values for the full input series.
-    /// @param prices Input price series.
-    /// @param output Output vector resized/written with SMA values.
-    /// @return status indicating success or failure.
-    status compute(std::span<const double> prices, std::vector<double>& output);
-
-    /// Updates the SMA with a single new price sample.
-    /// @param price New price value.
-    /// @return Updated SMA value.
-    double update(double price);
-
-    /// Returns the latest SMA value stored by the indicator.
-    double latest();
-};
 
 
 
@@ -77,6 +19,65 @@ public:
 
 
 namespace tama {
+    /// Stateful Exponential Moving Average (EMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class ExponentialMovingAverage {
+    private:
+        double lastEma;
+        double period;
+        double alpha;
+        double oma;
+        bool initalized = false;
+    public:
+        /// Creates an EMA indicator instance.
+        /// @param period Lookback period used to derive the EMA smoothing factor.
+        /// @param prevCalculation Optional previous EMA value used as warm start.
+        ExponentialMovingAverage(uint16_t period, double prevCalculation = 0);
+
+        /// Computes EMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with EMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the EMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated EMA value.
+        double update(double price);
+
+        /// Returns the latest EMA value stored by the indicator.
+        double latest();
+    };
+
+    /// Stateful Simple Moving Average (SMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class SimpleMovingAverage {    
+    private:
+        double alpha;
+        size_t period;
+        std::vector<double> priceBuf;
+        bool initalized = false;
+        double lastSma;
+    public:
+        /// Creates an SMA indicator instance.
+        /// @param period Number of samples used in the SMA window.
+        SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+        /// Computes SMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with SMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the SMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated SMA value.
+        double update(double price);
+
+        /// Returns the latest SMA value stored by the indicator.
+        double latest();
+    };
+
     /// Calculates the Weighted Moving Average (WMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param wmaOut Output vector that will contain the WMA values.

@@ -46,7 +46,6 @@ int main() {
     std::vector<double> prices = make_random_doubles(100'000, 1.0, 100.0);
 
 
-
     SimpleMovingAverage sma(50);
     std::vector<double> out;
     status s = sma.compute(prices, out);

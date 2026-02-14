@@ -6,7 +6,7 @@
 
 using namespace tama::helpers;
 
-SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc) {
+tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc) {
     this->period = period;
     this->lastSma = 0.0;
 
@@ -27,11 +27,11 @@ SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> pr
     }
 }
 
-double SimpleMovingAverage::latest() {
+double tama::SimpleMovingAverage::latest() {
     return this->lastSma;
 }
 
-status SimpleMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
+status tama::SimpleMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
     if (prices.empty() ) {
         return status::emptyParams;
     }
@@ -62,7 +62,7 @@ status SimpleMovingAverage::compute(std::span<const double> prices, std::vector<
     return status::ok;
 }
 
-double SimpleMovingAverage::update(double price) {
+double tama::SimpleMovingAverage::update(double price) {
     if (!this->initalized) {
         return 0;
     }
