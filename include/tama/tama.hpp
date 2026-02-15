@@ -78,13 +78,23 @@ namespace tama {
         double latest();
     };
 
-    /// Calculates the Weighted Moving Average (WMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param wmaOut Output vector that will contain the WMA values.
-    /// @param wmaPeriod The period over which to calculate the WMA.
-    /// @return status indicating success or failure.
-    status wma(std::span<const double>  prices, std::vector<double>& wmaOut, const uint16_t wmaPeriod);
-    
+
+    class WeightedMovingAverage {
+        private: 
+            size_t period;
+            double denominator;
+
+            std::vector<double> priceBuf;
+            bool initalized = false;
+            double lastWma;
+
+        public:
+            WeightedMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+            status compute(std::span<const double> prices, std::vector<double>& output);
+            double update(double price);
+            double latest();
+
+    };
     /// Calculates the Volume-Weighted Moving Average (VWMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param volume Input vector of volumes aligned with prices.

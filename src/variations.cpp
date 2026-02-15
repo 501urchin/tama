@@ -106,12 +106,12 @@ namespace tama {
         vector<double> wmaBOut(pricesLen);
 
         uint16_t p1 = static_cast<uint16_t>(std::lround(hullPeriod / 2));
-        status res = wma(prices, wmaAOut, p1);
+        status res = tama::WeightedMovingAverage(p1).compute(prices, wmaAOut);
         if (res != status::ok) {
             return res;
         }
         
-        res = wma(prices, wmaBOut, hullPeriod);
+        res = tama::WeightedMovingAverage(hullPeriod).compute(prices, wmaBOut);
         if (res != status::ok) {
             return res;
         }
@@ -123,6 +123,6 @@ namespace tama {
         }
         
         uint16_t p2 = static_cast<uint16_t>(std::lround((std::sqrt(hullPeriod))));
-        return wma(wmaAOut, hullOut, p2);
+        return tama::WeightedMovingAverage(p2).compute(wmaAOut, hullOut);
     }
 }

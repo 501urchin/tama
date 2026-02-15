@@ -42,25 +42,39 @@ void benchmark(const char* name, F&& f, int iterations = 10) {
 
 
 
+
 int main() {
-    std::vector<double> prices = make_random_doubles(100'000, 1.0, 100.0);
+    std::vector<double> prices = make_random_doubles(10, 1.0, 100.0);
 
+    std::cout << "Original prices:\n";
+    for (double p : prices) {
+        std::cout << p << " ";
+    }
+    std::cout << "\n";
 
-    SimpleMovingAverage sma(50);
     std::vector<double> out;
-    status s = sma.compute(prices, out);
+    WeightedMovingAverage w(4);
+    w.compute(prices, out);
 
-    std::cout << out.back() << std::endl;
-    double newVal = 15.45;
-    prices.push_back(newVal);
-    double lema = sma.update(newVal);
-    std::cout << lema << std::endl;
+    std::cout << "Weighted Moving Average (compute):\n";
+    for (double val : out) {
+        std::cout << val << " ";
+    }
+    std::cout << "\n";
 
+    double newVal = w.update(12.3);
+    std::cout << "Updated WMA with: " << newVal << "\n";
 
-    std::vector<double> o1;
-    SimpleMovingAverage sma2(50);
-    sma2.compute(prices, o1);
-    std::cout << o1.back() << std::endl;
+    prices.push_back(12.3);
+
+    std::vector<double> originalOut;
+    tama::wma(prices, originalOut, 4);
+
+    std::cout << "Tama WMA of updated prices:\n";
+    for (double val : originalOut) {
+        std::cout << val << " ";
+    }
+    std::cout << "\n";
 
     return 0;
 }

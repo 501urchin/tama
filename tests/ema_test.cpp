@@ -33,3 +33,19 @@ TEST(TamaTest, EmaRejectsemptyParams) {
     EXPECT_EQ(s, status::emptyParams);
     EXPECT_EQ(emaOut.size(), 2u);
 }
+
+TEST(TamaTest, EmaConstructorUsesPreviousCalculationForUpdate) {
+    const vector<double> prices{11,12,14,18,12,15,13,16,10};
+    const double newPrice = 19.0;
+    vector<double> emaOut;
+
+    ExponentialMovingAverage baseline(3);
+    ASSERT_EQ(baseline.compute(prices, emaOut), status::ok);
+
+    ExponentialMovingAverage resumed(3, emaOut.back());
+
+    const double baselineUpdated = baseline.update(newPrice);
+    const double resumedUpdated = resumed.update(newPrice);
+
+    EXPECT_NEAR(resumedUpdated, baselineUpdated, 1e-12);
+}
