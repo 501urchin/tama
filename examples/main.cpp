@@ -38,6 +38,87 @@ void benchmark(const char* name, F&& f, int iterations = 10) {
     std::printf("%-5s -> %5.3f ms/op\n", name, avg_ms);
 }
 
+void benchmark_stateful_wma() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    WeightedMovingAverage w(period);
+
+    long long computeNs = measure_ns([&]() {
+        w.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            w.update(price);
+        }
+    });
+
+    std::printf("\nStateful WMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_ema() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    ExponentialMovingAverage ema(period);
+
+    long long computeNs = measure_ns([&]() {
+        ema.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            ema.update(price);
+        }
+    });
+
+    std::printf("\nStateful EMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_sma() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    SimpleMovingAverage sma(period);
+
+    long long computeNs = measure_ns([&]() {
+        sma.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            sma.update(price);
+        }
+    });
+
+    std::printf("\nStateful SMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
 
 
 
@@ -66,6 +147,10 @@ int main() {
     std::cout << "Updated WMA with: " << newVal << "\n";
 
     prices.push_back(12.3);
+
+    benchmark_stateful_wma();
+    benchmark_stateful_ema();
+    benchmark_stateful_sma();
 
     return 0;
 }

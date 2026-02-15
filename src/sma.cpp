@@ -8,6 +8,8 @@
 tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc) {
     this->period = period;
     this->lastSma = 0.0;
+    this->head = 0;
+    this->rollingSum = 0.0;
 
     if (this->period == 0) {
         this->alpha = 0.0;
@@ -19,7 +21,8 @@ tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<doub
     if (prevCalc.size() >= this->period) {
         const size_t offset = prevCalc.size() - this->period;
         this->priceBuf.assign(prevCalc.begin() + static_cast<std::ptrdiff_t>(offset), prevCalc.end());
-        this->lastSma = this->alpha * helpers::simdSum(this->priceBuf);
+        this->rollingSum = helpers::simdSum(this->priceBuf);
+        this->lastSma = this->alpha * this->rollingSum;
         this->initalized = true;
     } else {
         this->priceBuf = std::vector<double>(this->period);
@@ -56,20 +59,24 @@ status tama::SimpleMovingAverage::compute(std::span<const double> prices, std::v
 
     std::span<const double> tail = prices.subspan(pricesLen - this->period, this->period);
     this->priceBuf = std::vector<double>(tail.begin(), tail.end());
+    this->head = 0;
+    this->rollingSum = sum;
     this->lastSma = output.back();
     this->initalized = true;
     return status::ok;
 }
 
 double tama::SimpleMovingAverage::update(double price) {
-    if (!this->initalized) {
+    if (!this->initalized || this->priceBuf.size() < this->period) {
         return 0;
     }
 
-    this->priceBuf.erase(this->priceBuf.begin());
-    this->priceBuf.push_back(price);
+    const double dropped = this->priceBuf[this->head];
+    this->rollingSum = this->rollingSum - dropped + price;
+    this->priceBuf[this->head] = price;
+    this->head = (this->head + 1) % this->period;
 
-    double sma = this->alpha * helpers::simdSum(this->priceBuf);
+    double sma = this->alpha * this->rollingSum;
     this->lastSma = sma;
     return sma;
 }

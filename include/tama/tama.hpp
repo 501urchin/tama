@@ -56,6 +56,8 @@ namespace tama {
         double alpha;
         size_t period;
         std::vector<double> priceBuf;
+        size_t head = 0;
+        double rollingSum = 0;
         bool initalized = false;
         double lastSma;
     public:
@@ -85,6 +87,9 @@ namespace tama {
             double denominator;
 
             std::vector<double> priceBuf;
+            size_t head = 0;
+            double rollingSum = 0;
+            double rollingWeightedSum = 0;
             bool initalized = false;
             double lastWma;
 

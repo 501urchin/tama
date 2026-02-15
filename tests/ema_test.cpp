@@ -23,6 +23,30 @@ TEST(TamaTest, EmaMatchesKnownValues) {
     }
 }
 
+TEST(TamaTest, EmaComputeThenUpdateMatchesKnownValues) {
+    const vector<double> prices{11,12,14,18,12,15,13,16,10};
+    const vector<double> expected{11,11.5,12.75,15.375,13.688,14.344,13.672,14.836,12.418};
+    const size_t split = 5;
+    vector<double> initialPrices(prices.begin(), prices.begin() + static_cast<std::ptrdiff_t>(split));
+    vector<double> mixedOut;
+
+    ExponentialMovingAverage ema(3);
+    ASSERT_EQ(ema.compute(initialPrices, mixedOut), status::ok);
+
+    for (size_t i = 0; i < split; i++) {
+        EXPECT_NEAR(mixedOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
+    }
+
+    for (size_t i = split; i < prices.size(); i++) {
+        mixedOut.push_back(ema.update(prices[i]));
+    }
+
+    ASSERT_EQ(mixedOut.size(), expected.size());
+    for (size_t i = 0; i < expected.size(); i++) {
+        EXPECT_NEAR(mixedOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
+    }
+}
+
 TEST(TamaTest, EmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> emaOut{1.0, 2.0};

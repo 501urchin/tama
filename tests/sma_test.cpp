@@ -21,6 +21,32 @@ TEST(TamaTest, SmaMatchesKnownValues) {
     }
 }
 
+TEST(TamaTest, SmaComputeThenUpdateMatchesKnownValues) {
+    const vector<double> prices{11, 12, 14, 18, 12, 15, 13, 16, 10};
+    const vector<double> expected{0, 0, 12.333, 14.667, 14.667, 15, 13.333, 14.667, 13};
+    const size_t period = 3;
+    const size_t split = 5;
+
+    vector<double> initialPrices(prices.begin(), prices.begin() + static_cast<std::ptrdiff_t>(split));
+    vector<double> mixedOut;
+
+    SimpleMovingAverage smaCalc(period);
+    ASSERT_EQ(smaCalc.compute(initialPrices, mixedOut), status::ok);
+
+    for (size_t i = 0; i < split; i++) {
+        EXPECT_NEAR(mixedOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
+    }
+
+    for (size_t i = split; i < prices.size(); i++) {
+        mixedOut.push_back(smaCalc.update(prices[i]));
+    }
+
+    ASSERT_EQ(mixedOut.size(), expected.size());
+    for (size_t i = 0; i < expected.size(); i++) {
+        EXPECT_NEAR(mixedOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
+    }
+}
+
 TEST(TamaTest, SmaRejectsemptyParams) {
     const vector<double> prices{};
     vector<double> smaOut{1.0, 2.0};
