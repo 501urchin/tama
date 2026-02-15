@@ -5,6 +5,7 @@
 #include <chrono>
 #include <utility>
 #include <cstdio>
+#include <cmath>
 
 using namespace tama;
 
@@ -125,28 +126,31 @@ void benchmark_stateful_sma() {
 
 
 int main() {
-    std::vector<double> prices = make_random_doubles(10, 1.0, 100.0);
+    std::vector<double> debugPrices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
+    constexpr uint16_t hullPeriod = 3;
+    constexpr double newDebugPrice = 17.25;
 
-    std::cout << "Original prices:\n";
-    for (double p : prices) {
-        std::cout << p << " ";
+    std::vector<double> statefulOut;
+    HullMovingAverage statefulHull(hullPeriod);
+    statefulHull.compute(debugPrices, statefulOut);
+
+    debugPrices.push_back(newDebugPrice);
+    const double updatedHull = statefulHull.update(newDebugPrice);
+
+    std::vector<double> baselineOut;
+    const auto baselineStatus = hull(debugPrices, baselineOut, hullPeriod);
+
+    std::cout << "\nHMA debug verification\n";
+    std::cout << "stateful update value: " << updatedHull << "\n";
+    if (baselineStatus == status::ok && !baselineOut.empty()) {
+        const double baselineLatest = baselineOut.back();
+        std::cout << "baseline latest value: " << baselineLatest << "\n";
+        std::cout << "absolute delta: " << std::abs(updatedHull - baselineLatest) << "\n";
+    } else {
+        std::cout << "baseline hull() failed with status: " << static_cast<int>(baselineStatus) << "\n";
     }
-    std::cout << "\n";
 
-    std::vector<double> out;
-    WeightedMovingAverage w(4);
-    w.compute(prices, out);
 
-    std::cout << "Weighted Moving Average (compute):\n";
-    for (double val : out) {
-        std::cout << val << " ";
-    }
-    std::cout << "\n";
-
-    double newVal = w.update(12.3);
-    std::cout << "Updated WMA with: " << newVal << "\n";
-
-    prices.push_back(12.3);
 
     benchmark_stateful_wma();
     benchmark_stateful_ema();

@@ -94,11 +94,61 @@ namespace tama {
             double lastWma;
 
         public:
+            /// Creates a WMA indicator instance.
+            /// @param period Number of samples used in the WMA window.
+            /// @param prevCalc Optional warm-start buffer containing the latest `period`
+            /// prices ordered from past to present (oldest to newest).
             WeightedMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+            /// Computes WMA values for the full input series.
+            /// @param prices Input price series.
+            /// @param output Output vector resized/written with WMA values.
+            /// @return status indicating success or failure.
             status compute(std::span<const double> prices, std::vector<double>& output);
+
+            /// Updates the WMA with a single new price sample.
+            /// @param price New price value.
+            /// @return Updated WMA value.
             double update(double price);
+
+            /// Returns the latest WMA value stored by the indicator.
             double latest();
 
+    };
+
+
+
+    class HullMovingAverage {
+        uint16_t p1;
+        uint16_t p2;
+        uint16_t period;
+
+        WeightedMovingAverage w1;
+        WeightedMovingAverage w2;
+        WeightedMovingAverage w3;
+
+        double lastHull = 0.0;
+        bool initialized = false;
+    public:
+        /// Creates an HMA indicator instance.
+        /// @param period Base lookback period used by the HMA.
+        /// @param prevCalc Optional warm-start buffer containing the latest `period`
+        /// prices ordered from past to present (oldest to newest).
+        HullMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+        /// Computes HMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with HMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the HMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated HMA value.
+        double update(double price);
+
+        /// Returns the latest HMA value stored by the indicator.
+        double latest();
     };
     /// Calculates the Volume-Weighted Moving Average (VWMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
@@ -122,13 +172,6 @@ namespace tama {
     /// @return status indicating success or failure.
     status tema(std::span<const double> prices, std::vector<double>& temaOut, const uint16_t temaPeriod);
     
-    /// Calculates the Hull Moving Average (HMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param hullOut Output vector that will contain the HMA values.
-    /// @param hullPeriod The period over which to calculate the HMA.
-    /// @return status indicating success or failure.
-    status hull(std::span<const double> prices, std::vector<double>& hullOut, const uint16_t hullPeriod);
-
     /// Calculates the McGinley Dynamic (MD), an adaptive moving average that
     /// adjusts its speed based on market volatility to reduce whipsaws.
     /// @param prices Input vector of prices (typically Close).

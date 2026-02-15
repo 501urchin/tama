@@ -6,7 +6,6 @@ using std::vector;
 
 using tama::dema;
 using tama::tema;
-using tama::hull;
 
 
 TEST(TamaTest, DemaMatchesKnownValues) {
@@ -75,7 +74,7 @@ TEST(TamaTest, HullMatchesKnownValuesPeriod3) {
     const vector<double> expected{0, 0, 0, 12.8333, 12.5, 13.8333, 15.5, 13.3889, 13.5, 16.1667};
     vector<double> hullOut;
 
-    const auto result = hull(prices, hullOut, 3);
+    auto result = tama::HullMovingAverage(3).compute(prices, hullOut);
 
     ASSERT_EQ(result, status::ok);
     ASSERT_EQ(hullOut.size(), prices.size());
@@ -87,11 +86,27 @@ TEST(TamaTest, HullMatchesKnownValuesPeriod3) {
     }
 }
 
+TEST(TamaTest, HullMatchesKnownValuesPeriod5) {
+    const vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
+    const vector<double> expected{0, 0, 0, 0, 0, 13.5333, 15.1333, 14.4, 13.6, 15.2222};
+    vector<double> hullOut;
+
+    auto result = tama::HullMovingAverage(5).compute(prices, hullOut);
+
+    ASSERT_EQ(result, status::ok);
+    ASSERT_EQ(hullOut.size(), prices.size());
+    ASSERT_EQ(expected.size(), prices.size());
+
+    for (size_t i = 5; i < expected.size(); ++i) {
+        EXPECT_NEAR(hullOut[i], expected[i], 1e-1) << "Vectors differ at index " << i;
+    }
+}
+
 TEST(TamaTest, HullRejectsEmptyParams) {
     const vector<double> prices{};
     vector<double> hullOut{1.0, 2.0};
 
-    const auto result = hull(prices, hullOut, 3);
+    auto result = tama::HullMovingAverage(3).compute(prices, hullOut);
 
     EXPECT_EQ(result, status::emptyParams);
     EXPECT_EQ(hullOut.size(), 2u);
@@ -101,7 +116,7 @@ TEST(TamaTest, HullRejectsInvalidParams) {
     const vector<double> prices{10, 11, 12};
     vector<double> hullOut;
 
-    const auto result = hull(prices, hullOut, 0);
+     auto result = tama::HullMovingAverage(0).compute(prices, hullOut);
 
     EXPECT_EQ(result, status::invalidParam);
 }
