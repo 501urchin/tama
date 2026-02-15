@@ -67,14 +67,5 @@ int main() {
 
     prices.push_back(12.3);
 
-    std::vector<double> originalOut;
-    tama::wma(prices, originalOut, 4);
-
-    std::cout << "Tama WMA of updated prices:\n";
-    for (double val : originalOut) {
-        std::cout << val << " ";
-    }
-    std::cout << "\n";
-
     return 0;
 }

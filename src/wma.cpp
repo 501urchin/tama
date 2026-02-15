@@ -1,5 +1,11 @@
 #include <vector>
 #include <tama/tama.hpp>
+#if defined(__aarch64__) || defined(_M_ARM64)
+#include <arm_neon.h>
+#elif defined(__x86_64__) || defined(_M_X64)
+#include <immintrin.h>
+#endif
+
 
 using namespace std;
 
@@ -32,7 +38,7 @@ status tama::WeightedMovingAverage::compute(std::span<const double> prices, std:
         return status::emptyParams;
     }
 
-    if (this->period == 0 || this->period >= pricesLen) {
+    if (this->period == 0 || this->period > pricesLen) {
         return status::invalidParam;
     }
 
@@ -77,8 +83,41 @@ double tama::WeightedMovingAverage::update(double price) {
 
 
     double weightedSum = 0.0;
-    for (size_t i = 0; i < this->period; i++) {
-        weightedSum += this->priceBuf[i] * (i + 1);
+    size_t i = 0;
+
+    #if defined(__aarch64__) || defined(_M_ARM64)
+        double tmp[2];
+        float64x2_t acc = vdupq_n_f64(0);
+        
+        for (; i+2 <= this->period; i += 2) {
+            tmp[0] = i+1;
+            tmp[1] = i+2;
+
+            acc = vaddq_f64(acc, vmulq_f64(vld1q_f64(&this->priceBuf[i]), vld1q_f64(tmp)));
+        }
+
+        weightedSum += vaddvq_f64(acc);
+    #elif defined(__x86_64__) || defined(_M_X64)
+        double tmp[4];
+        __m256d acc = _mm256_setzero_pd();
+        
+        for (; i+4 <= this->period; i += 4) {
+            tmp[0] = i+1;
+            tmp[1] = i+2;
+            tmp[2] = i+3;
+            tmp[3] = i+4;
+
+            acc = _mm256_add_pd(acc, _mm256_mul_pd(_mm256_loadu_pd(&this->priceBuf[i]), _mm256_loadu_pd(tmp)));
+        }
+
+        __m128d lo = _mm256_castpd256_pd128(acc);
+        __m128d hi = _mm256_extractf128_pd(acc, 1);
+        __m128d sum2 = _mm_add_pd(lo, hi);
+        weightedSum += _mm_cvtsd_f64(_mm_hadd_pd(sum2, sum2));
+    #endif
+
+    for (; i < this->period; i++) {
+       weightedSum += this->priceBuf[i] * (i + 1);
     }
 
     this->lastWma = weightedSum / this->denominator;
