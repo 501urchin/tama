@@ -38,11 +38,7 @@ TEST(TamaTest, WmaRejectsemptyParams) {
 TEST(TamaTest, WmaRejectsInvalidParams) {
     const vector<double> prices{10, 11, 12};
     vector<double> wmaOut;
-
-    tama::WeightedMovingAverage stateful(0);
-    status result = stateful.compute(prices, wmaOut);
-
-    EXPECT_EQ(result, status::invalidParam);
+    EXPECT_THROW(tama::WeightedMovingAverage(0), std::invalid_argument);
 }
 
 TEST(TamaTest, WmaConstructorUsesPreviousWindowForUpdate) {

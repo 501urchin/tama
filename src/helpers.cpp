@@ -1,5 +1,4 @@
 #include <tama/helpers.hpp>
-#include <iostream>
 
 #if defined(__aarch64__) || defined(_M_ARM64)
 #include <arm_neon.h>

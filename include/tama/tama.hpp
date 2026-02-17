@@ -56,10 +56,9 @@ namespace tama {
     private:
         double alpha;
         size_t period;
-        std::vector<double> priceBuf;
-        size_t head = 0;
-        double rollingSum = 0;
-        bool initalized = false;
+        helpers::RingBuffer<double> priceBuf;
+        double rollingSum;
+        bool initalized;
         double lastSma;
     public:
         /// Creates an SMA indicator instance.
@@ -87,8 +86,7 @@ namespace tama {
             size_t period;
             double denominator;
 
-            std::vector<double> priceBuf;
-            size_t head = 0;
+            helpers::RingBuffer<double> priceBuf;
             double rollingSum = 0;
             double rollingWeightedSum = 0;
             bool initalized = false;
@@ -163,6 +161,7 @@ namespace tama {
         /// Returns the latest HMA value stored by the indicator.
         double latest();
     };
+
     /// Calculates the Volume-Weighted Moving Average (VWMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).
     /// @param volume Input vector of volumes aligned with prices.

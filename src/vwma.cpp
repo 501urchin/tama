@@ -1,10 +1,8 @@
 #include <vector>
 #include <tama/tama.hpp>
 
-using namespace std;
-
 namespace tama {    
-     status vwma(std::span<const double> prices, std::span<const double> volume, std::vector<double>& vwmaOut, const uint16_t vwmaPeriod) {
+    status vwma(std::span<const double> prices, std::span<const double> volume, std::vector<double>& vwmaOut, const uint16_t vwmaPeriod) {
         size_t pricesLen = prices.size();
         size_t volumeLen = volume.size();
 

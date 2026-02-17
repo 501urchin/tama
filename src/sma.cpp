@@ -2,30 +2,26 @@
 #include <tama/helpers.hpp>
 #include <algorithm>
 #include <span>
+#include <stdexcept>
 
 
 
-tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc) {
-    this->period = period;
-    this->lastSma = 0.0;
-    this->head = 0;
-    this->rollingSum = 0.0;
-
+tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc): period(period),priceBuf(period > 0 ? period : 1),  rollingSum(0.0), lastSma(0.0) {
     if (this->period == 0) {
-        this->alpha = 0.0;
-        return;
+        throw std::invalid_argument("invalid period");
     }
 
     this->alpha = 1.0 / static_cast<double>(this->period);
 
-    if (prevCalc.size() >= this->period) {
-        const size_t offset = prevCalc.size() - this->period;
-        this->priceBuf.assign(prevCalc.begin() + static_cast<std::ptrdiff_t>(offset), prevCalc.end());
-        this->rollingSum = helpers::simdSum(this->priceBuf);
+    if (!prevCalc.empty()) {
+        if (prevCalc.size() != period) {
+            throw std::invalid_argument("prevCalc buffer doesn't match period");
+        }
+        
+        this->priceBuf.insert(prevCalc);
+        this->rollingSum = helpers::simdSum(prevCalc);
         this->lastSma = this->alpha * this->rollingSum;
         this->initalized = true;
-    } else {
-        this->priceBuf = std::vector<double>(this->period);
     }
 }
 
@@ -58,23 +54,22 @@ status tama::SimpleMovingAverage::compute(std::span<const double> prices, std::v
     }
 
     std::span<const double> tail = prices.subspan(pricesLen - this->period, this->period);
-    this->priceBuf = std::vector<double>(tail.begin(), tail.end());
-    this->head = 0;
     this->rollingSum = sum;
-    this->lastSma = output.back();
+    this->priceBuf.insert(std::vector<double>(tail.begin(), tail.end()));
     this->initalized = true;
+    this->lastSma = output.back();
+
     return status::ok;
 }
 
 double tama::SimpleMovingAverage::update(double price) {
-    if (!this->initalized || this->priceBuf.size() < this->period) {
+    if (!this->initalized) {
         return 0;
     }
 
-    const double dropped = this->priceBuf[this->head];
-    this->rollingSum = this->rollingSum - dropped + price;
-    this->priceBuf[this->head] = price;
-    this->head = (this->head + 1) % this->period;
+    this->rollingSum -= this->priceBuf.head();
+    this->rollingSum +=  price;
+    this->priceBuf.insert(price);
 
     double sma = this->alpha * this->rollingSum;
     this->lastSma = sma;

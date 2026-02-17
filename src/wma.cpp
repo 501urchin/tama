@@ -1,25 +1,28 @@
 #include <vector>
+#include <stdexcept>
 #include <tama/tama.hpp>
 
-
-using namespace std;
-
-tama::WeightedMovingAverage::WeightedMovingAverage(uint16_t period, std::vector<double> prevCalc) {
+tama::WeightedMovingAverage::WeightedMovingAverage(uint16_t period, std::vector<double> prevCalc)
+    : priceBuf(period > 0 ? period : 1) {
+    if (period == 0) {
+        throw std::invalid_argument("invalid period");
+    }
     this->denominator = static_cast<double>(period) * static_cast<double>((period + 1)) / 2;
     this->period = period;
-    this->head = 0;
     this->rollingSum = 0;
     this->rollingWeightedSum = 0;
 
-    if (this->period > 0 && prevCalc.size() >= this->period) {
-        const size_t offset = prevCalc.size() - this->period;
-        this->priceBuf.assign(prevCalc.begin() + static_cast<std::ptrdiff_t>(offset), prevCalc.end());
+    if (!prevCalc.empty()) {
+        if (prevCalc.size() != this->period) {
+            throw std::invalid_argument("prevCalc buffer doesn't match period");
+        }
+        this->priceBuf.insert(prevCalc);
 
         double weightedSum = 0.0;
         double sum = 0.0;
         for (size_t i = 0; i < this->period; i++) {
             sum += this->priceBuf[i];
-            weightedSum += this->priceBuf[i] * static_cast<double>(i + 1);
+            weightedSum += this->priceBuf[static_cast<int>(i)] * static_cast<double>(i + 1);
         }
 
         this->rollingSum = sum;
@@ -68,8 +71,9 @@ status tama::WeightedMovingAverage::compute(std::span<const double> prices, std:
     }
 
     const size_t offset = pricesLen - this->period;
-    this->priceBuf.assign(prices.begin() + static_cast<std::ptrdiff_t>(offset), prices.end());
-    this->head = 0;
+    this->priceBuf = helpers::RingBuffer<double>(this->period);
+    std::vector<double> tail(prices.begin() + static_cast<std::ptrdiff_t>(offset), prices.end());
+    this->priceBuf.insert(tail);
     this->rollingSum = sSum;
     this->rollingWeightedSum = weightedSum;
     this->lastWma = output.back();
@@ -79,18 +83,16 @@ status tama::WeightedMovingAverage::compute(std::span<const double> prices, std:
 }
 
 double tama::WeightedMovingAverage::update(double price) {
-    if (!this->initalized || this->priceBuf.size() < this->period) {
+    if (!this->initalized || static_cast<size_t>(this->priceBuf.len()) < this->period) {
         return 0;
     }
 
     const double oldSum = this->rollingSum;
-    const double dropped = this->priceBuf[this->head];
 
     this->rollingWeightedSum = this->rollingWeightedSum - oldSum + (price * static_cast<double>(this->period));
-    this->rollingSum = oldSum - dropped + price;
+    this->rollingSum = oldSum - this->priceBuf.head() + price;
 
-    this->priceBuf[this->head] = price;
-    this->head = (this->head + 1) % this->period;
+    this->priceBuf.insert(price);
 
     this->lastWma = this->rollingWeightedSum / this->denominator;
 

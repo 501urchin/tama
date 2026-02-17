@@ -61,10 +61,9 @@ TEST(TamaTest, SmaRejectsemptyParams) {
 TEST(TamaTest, SmaRejectsInvalidParams) {
     const vector<double> prices{10, 11, 12};
     vector<double> smaOut;
-    SimpleMovingAverage smaCalcInvalid(0);
     SimpleMovingAverage smaCalcEqualSize(3);
 
-    EXPECT_EQ(smaCalcInvalid.compute(prices, smaOut), status::invalidParam);
+    EXPECT_THROW(SimpleMovingAverage(0), std::invalid_argument);
     EXPECT_EQ(smaCalcEqualSize.compute(prices, smaOut), status::invalidParam);
 }
 

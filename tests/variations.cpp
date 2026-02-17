@@ -116,7 +116,5 @@ TEST(TamaTest, HullRejectsInvalidParams) {
     const vector<double> prices{10, 11, 12};
     vector<double> hullOut;
 
-     auto result = tama::HullMovingAverage(0).compute(prices, hullOut);
-
-    EXPECT_EQ(result, status::invalidParam);
+    EXPECT_THROW(tama::HullMovingAverage(0), std::invalid_argument);
 }

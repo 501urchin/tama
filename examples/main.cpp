@@ -120,6 +120,33 @@ void benchmark_stateful_sma() {
     std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
 }
 
+void benchmark_stateful_hull() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    HullMovingAverage hma(period);
+
+    long long computeNs = measure_ns([&]() {
+        hma.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            hma.update(price);
+        }
+    });
+
+    std::printf("\nStateful HMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
 
 
 
@@ -132,6 +159,7 @@ int main() {
     benchmark_stateful_wma();
     benchmark_stateful_ema();
     benchmark_stateful_sma();
+    benchmark_stateful_hull();
 
     return 0;
 }
