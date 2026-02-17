@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <span>
+#include <tama/helpers.hpp>
 
 
 enum class status : uint8_t {
@@ -107,11 +108,23 @@ namespace tama {
             status compute(std::span<const double> prices, std::vector<double>& output);
 
             /// Updates the WMA with a single new price sample.
-            /// @param price New price value.
-            /// @return Updated WMA value.
+            /// @param price New price value           /// @return Updated WMA value.
             double update(double price);
 
             /// Returns the latest WMA value stored by the indicator.
+            double latest();
+
+    };
+
+    class VolumeWeightedMovingAverage {
+        private: 
+            size_t period;
+            helpers::RingBuffer<double> priceBuf;
+            helpers::RingBuffer<double> volumeBuf;
+        public:
+            VolumeWeightedMovingAverage(uint16_t period, std::vector<double> prevPrices = {}, std::vector<double> prevVolume = {});
+            status compute(std::span<const double> prices, std::span<const double> volume, std::vector<double>& output);
+            double update(double price, double volume);
             double latest();
 
     };
@@ -180,3 +193,6 @@ namespace tama {
     /// @return status indicating success or failure.
     status md(std::span<const double> prices, std::vector<double>& mdOut, uint16_t mdPeriod);
  } // namespace tama
+
+
+

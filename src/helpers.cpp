@@ -1,5 +1,5 @@
 #include <tama/helpers.hpp>
-
+#include <iostream>
 
 #if defined(__aarch64__) || defined(_M_ARM64)
 #include <arm_neon.h>
@@ -7,9 +7,7 @@
 #include <immintrin.h>
 #endif
 
-namespace helpers {
-
-    double simdSum(std::span<const double> elms) {
+double helpers::simdSum(std::span<const double> elms) {
         double sum = 0.0;
         const size_t n = elms.size();
 
@@ -55,6 +53,4 @@ namespace helpers {
         }
 
         return sum;
-    }
-
-} // namespace tama::helpers
+}
