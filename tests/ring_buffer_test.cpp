@@ -3,15 +3,11 @@
 
 #include <tama/helpers.hpp>
 
-TEST(RingBufferTest, RejectsMismatchedInitialValues) {
-    const std::vector<int> values{1, 2};
-    EXPECT_THROW(helpers::RingBuffer<int>(3, values), std::invalid_argument);
-}
-
 TEST(RingBufferTest, ReadsInitialOrderFromHead) {
     const std::vector<int> values{1, 2, 3};
-    helpers::RingBuffer<int> buffer(values.size(), values);
+    helpers::RingBuffer<int> buffer(values.size());
 
+    buffer.insert(values);
     EXPECT_EQ(buffer.head(), 1);
     EXPECT_EQ(buffer[0], 1);
     EXPECT_EQ(buffer[1], 2);
@@ -20,8 +16,9 @@ TEST(RingBufferTest, ReadsInitialOrderFromHead) {
 
 TEST(RingBufferTest, InsertAdvancesHeadAndOverwrites) {
     const std::vector<int> values{1, 2, 3};
-    helpers::RingBuffer<int> buffer(values.size(), values);
+    helpers::RingBuffer<int> buffer(values.size());
 
+    buffer.insert(values);
     buffer.insert(4);
     EXPECT_EQ(buffer.head(), 2);
     EXPECT_EQ(buffer[0], 2);

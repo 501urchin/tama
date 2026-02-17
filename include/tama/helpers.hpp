@@ -9,34 +9,64 @@
 namespace helpers {
     double simdSum(std::span<const double> elms);
     
-    template <typename T>
-    class RingBuffer {
-        private:
-            std::unique_ptr<T[]> buf;
-            size_t headIdx;
-            size_t size;
-        public: 
-            RingBuffer(size_t size, const std::vector<T>& initialValues): buf(std::make_unique<T[]>(size)), headIdx(0), size(size) {
-                if (initialValues.size() != size) {
-                    throw std::invalid_argument("initialValues must match buffer size");
-                }
+template <typename T>
+class RingBuffer {
+private:
+    int headIdx;
+    size_t capacity;
+    std::vector<T> buf;
 
-                for (size_t i = 0; i < size; ++i) {
-                    buf[i] = initialValues[i];
-                }
+public:
+    RingBuffer(int size) : headIdx(0), capacity(size) {
+        if (size <= 0) {
+            throw std::invalid_argument("invalid size");
+        }
+        buf.reserve(size);
+    }
+
+    T head() const {
+        if (buf.empty()) {
+            throw std::runtime_error("buffer is empty");
+        }
+
+        return buf[headIdx];
+    }
+
+    void insert(const std::vector<T>& vals) {
+        for (const auto& val : vals) {
+            if (buf.size() < capacity) {
+                buf.push_back(val);
+            } else {
+                buf[headIdx] = val;
+                headIdx = (headIdx + 1) % capacity;
             }
+        }
+    }
+    
+    void insert(const T& val) {
+        if (buf.size() < capacity) {
+            buf.push_back(val);
+        } else {
+            buf[headIdx] = val;
+            headIdx = (headIdx + 1) % capacity;
+        }
+    }
 
-            T head() {
-                return this->buf[this->headIdx];
-            };
+    T operator[](int i){
+        if (i >= capacity || buf.empty()) {
+            throw std::out_of_range("index out of range");
+        }
+        
+        return buf[(headIdx + i) % capacity];
+    }
 
-            void insert(const T& value) {
-                this->buf[this->headIdx] = value;
-                this->headIdx = (this->headIdx + 1) % this->size;
-            };
+    int len() const {
+        return buf.size();
+    }
 
-            T operator[](size_t i) const {
-                return buf[(this->headIdx + i) % this->size]; 
-            }
-    };
+    int cap() const {
+        return capacity;
+    }
+};
+
 } // namespace helpers
