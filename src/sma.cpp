@@ -67,7 +67,7 @@ status tama::SimpleMovingAverage::compute(std::span<const double> prices, std::v
 
 double tama::SimpleMovingAverage::update(double price) {
     if (!this->initalized) {
-        return 0.0;
+        throw std::runtime_error("sma not initialized");
     }
 
     this->rollingSum -= this->priceBuf.head();

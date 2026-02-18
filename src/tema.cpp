@@ -19,13 +19,14 @@ tama::TripleExponentialMovingAverage::TripleExponentialMovingAverage(uint16_t pe
 	  initialized(false),
 	  lastTema(0.0) {
 	if (!prevCalc.empty()) {
-		if (prevCalc.size() != this->period) {
+		size_t psize = prevCalc.size();
+		if (psize != this->period) {
 			throw std::invalid_argument("prevCalc buffer doesn't match period");
 		}
 
-		std::vector<double> emaAOut(prevCalc.size());
-		std::vector<double> emaBOut(prevCalc.size());
-		std::vector<double> emaCOut(prevCalc.size());
+		std::vector<double> emaAOut(psize);
+		std::vector<double> emaBOut(psize);
+		std::vector<double> emaCOut(psize);
 
 		status res = this->ema1.compute(prevCalc, emaAOut);
 		if (res != status::ok) {
@@ -89,7 +90,7 @@ status tama::TripleExponentialMovingAverage::compute(std::span<const double> pri
 
 double tama::TripleExponentialMovingAverage::update(double price) {
 	if (!this->initialized) {
-		return 0.0;
+		throw std::runtime_error("tema not initialized");
 	}
 
 	const double ema1Value = this->ema1.update(price);

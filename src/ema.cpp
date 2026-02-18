@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
+#include <stdexcept>
 #include <tama/tama.hpp>
 
 tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation)
@@ -15,7 +16,7 @@ tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double
 
     this->alpha = 2.0 / (this->period + 1.0);
     this->oma = 1.0 - this->alpha;
-    if (!std::isnan(prevCalculation)) {
+    if (!std::isnan(prevCalculation) && prevCalculation != 0.0) {
         this->lastEma = prevCalculation;
         this->initalized = true;
     }
@@ -45,7 +46,7 @@ status tama::ExponentialMovingAverage::compute(std::span<const double> prices, s
 
 double tama::ExponentialMovingAverage::update(double price) {
     if (!this->initalized) {
-        return 0.0;
+        throw std::runtime_error("ema not initialized");
     }
 
     double ema = this->alpha * price + this->oma * this->lastEma;

@@ -92,7 +92,7 @@ status tama::WeightedMovingAverage::compute(
 
 double tama::WeightedMovingAverage::update(double price) {
     if (!this->initialized) {
-        return 0.0;
+        throw std::runtime_error("wma not initialized");
     }
 
     const double oldSum = this->rollingSum;

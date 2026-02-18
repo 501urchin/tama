@@ -76,7 +76,7 @@ status tama::DoubleExponentialMovingAverage::compute(std::span<const double> pri
 
 double tama::DoubleExponentialMovingAverage::update(double price) {
 	if (!this->initialized) {
-		return 0.0;
+		throw std::runtime_error("dema not initialized");
 	}
 
 	const double ema1Value = this->ema1.update(price);

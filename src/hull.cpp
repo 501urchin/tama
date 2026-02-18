@@ -98,6 +98,10 @@ double tama::HullMovingAverage::latest() {
 }
 
 double tama::HullMovingAverage::update(double price) {
+    if (!this->initialized) {
+        throw std::runtime_error("hma not initialized");
+    }
+
     double w1 = this->w1.update(price);
     double w2 = this->w2.update(price);
 

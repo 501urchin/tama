@@ -10,7 +10,7 @@ tama::McGinleyDynamicMovingAverage::McGinleyDynamicMovingAverage(uint16_t period
         throw std::invalid_argument("invalid period");
     }
 
-    if (!std::isnan(prevCalculation)) {
+    if (!std::isnan(prevCalculation) && prevCalculation != 0.0) {
         this->lastMd = prevCalculation;
         this->initialized = true;
     }
@@ -46,7 +46,7 @@ status tama::McGinleyDynamicMovingAverage::compute(std::span<const double> price
 
 double tama::McGinleyDynamicMovingAverage::update(double price) {
     if (!this->initialized) {
-        return 0.0;
+        throw std::runtime_error("md not initialized");
     }
 
     const double mt = this->lastMd;

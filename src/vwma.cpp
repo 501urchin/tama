@@ -99,6 +99,10 @@ status tama::VolumeWeightedMovingAverage::compute(std::span<const double> prices
 }
 
 double tama::VolumeWeightedMovingAverage::update(double price, double volume) {
+    if (!this->initialized) {
+        throw std::runtime_error("vwma not initialized");
+    }
+
     this->rollingNumerator -= this->priceBuf.head() * this->volumeBuf.head();
     this->rollingNumerator += price * volume;
 
