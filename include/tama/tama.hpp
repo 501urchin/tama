@@ -226,13 +226,34 @@ namespace tama {
         double latest();
     };
     
-    /// Calculates the McGinley Dynamic (MD), an adaptive moving average that
-    /// adjusts its speed based on market volatility to reduce whipsaws.
-    /// @param prices Input vector of prices (typically Close).
-    /// @param mdOut Output vector that will contain the McGinley Dynamic values.
-    /// @param mdPeriod The base lookback period used in the MD calculation.
-    /// @return status indicating success or failure.
-    status md(std::span<const double> prices, std::vector<double>& mdOut, uint16_t mdPeriod);
+    /// Stateful McGinley Dynamic (MD) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class McGinleyDynamicMovingAverage {
+    private:
+        uint16_t period;
+        double lastMd{0.0};
+        bool initialized{false};
+
+    public:
+        /// Creates an MD indicator instance.
+        /// @param period Base lookback period used in the MD calculation.
+        /// @param prevCalculation Optional previous MD value used as warm start.
+        McGinleyDynamicMovingAverage(uint16_t period, double prevCalculation = 0.0);
+
+        /// Computes MD values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with MD values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the MD with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated MD value.
+        double update(double price);
+
+        /// Returns the latest MD value stored by the indicator.
+        double latest();
+    };
  } // namespace tama
 
 
