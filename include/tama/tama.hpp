@@ -3,71 +3,258 @@
 #include <cstdint>
 #include <vector>
 #include <span>
+#include <tama/helpers.hpp>
+
+
+enum class status : uint8_t {
+    ok,
+    emptyParams,
+    invalidParam
+};
 
 
 namespace tama {
-    enum class status : uint8_t {
-        ok,
-        emptyParams,
-        invalidParam
+    /// Stateful Exponential Moving Average (EMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class ExponentialMovingAverage {
+    private:
+        double lastEma{0.0};
+        double period;
+        double alpha;
+        double oma;
+        bool initalized = false;
+    public:
+        /// Creates an EMA indicator instance.
+        /// @param period Lookback period used to derive the EMA smoothing factor.
+        /// @param prevCalculation Optional previous EMA value used as warm start.
+        ExponentialMovingAverage(uint16_t period, double prevCalculation = 0);
+
+        /// Computes EMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with EMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the EMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated EMA value.
+        double update(double price);
+
+        /// Returns the latest EMA value stored by the indicator.
+        double latest();
     };
 
-    /// Calculates the Exponential Moving Average (EMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param emaOut Output vector that will contain the EMA values.
-    /// @param emaPeriod The period over which to calculate the EMA.
-    /// @return status indicating success or failure.
-    status ema(std::span<const double>  prices, std::vector<double>& emaOut, const uint16_t emaPeriod);
+    /// Stateful Simple Moving Average (SMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class SimpleMovingAverage {    
+    private:
+        double alpha;
+        size_t period;
+        helpers::RingBuffer<double> priceBuf;
+        double rollingSum{0.0};
+        bool initalized{false};
+        double lastSma{0.0};
+    public:
+        /// Creates an SMA indicator instance.
+        /// @param period Number of samples used in the SMA window.
+        SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
 
-    /// Calculates the Simple Moving Average (SMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param smaOut Output vector that will contain the SMA values.
-    /// @param smaPeriod The period over which to calculate the SMA.
-    /// @return status indicating success or failure.
-    status sma(std::span<const double>  prices, std::vector<double>& smaOut, const uint16_t smaPeriod);
+        /// Computes SMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with SMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
 
-    /// Calculates the Weighted Moving Average (WMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param wmaOut Output vector that will contain the WMA values.
-    /// @param wmaPeriod The period over which to calculate the WMA.
-    /// @return status indicating success or failure.
-    status wma(std::span<const double>  prices, std::vector<double>& wmaOut, const uint16_t wmaPeriod);
+        /// Updates the SMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated SMA value.
+        double update(double price);
+
+        /// Returns the latest SMA value stored by the indicator.
+        double latest();
+    };
+
+
+    class WeightedMovingAverage {
+        private: 
+            size_t period;
+            double denominator;
+
+            helpers::RingBuffer<double> priceBuf;
+
+            double rollingSum{0.0};
+            double rollingWeightedSum{0.0};
+
+            bool initialized{false};
+            double lastWma{0.0};
+
+        public:
+            /// Creates a WMA indicator instance.
+            /// @param period Number of samples used in the WMA window.
+            /// @param prevCalc Optional warm-start buffer containing the latest `period`
+            /// prices ordered from past to present (oldest to newest).
+            WeightedMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+            /// Computes WMA values for the full input series.
+            /// @param prices Input price series.
+            /// @param output Output vector resized/written with WMA values.
+            /// @return status indicating success or failure.
+            status compute(std::span<const double> prices, std::vector<double>& output);
+
+            /// Updates the WMA with a single new price sample.
+            /// @param price New price value           /// @return Updated WMA value.
+            double update(double price);
+
+            /// Returns the latest WMA value stored by the indicator.
+            double latest();
+
+    };
+
+    class VolumeWeightedMovingAverage {
+        private: 
+            size_t period;
+            helpers::RingBuffer<double> priceBuf;
+            helpers::RingBuffer<double> volumeBuf;
+            
+            double rollingNumerator;
+            double rollingDenominator;
+
+            bool initialized;
+            double lastCalculation;
+        public:
+            VolumeWeightedMovingAverage(uint16_t period, std::vector<double> prevPrices = {}, std::vector<double> prevVolume = {});
+            status compute(std::span<const double> prices, std::span<const double> volume, std::vector<double>& output);
+            double update(double price, double volume);
+            double latest();
+    };
+
+
+
+    class HullMovingAverage {
+        uint16_t p1;
+        uint16_t p2;
+        uint16_t period;
+
+        WeightedMovingAverage w1;
+        WeightedMovingAverage w2;
+        WeightedMovingAverage w3;
+
+        double lastHull = 0.0;
+        bool initialized = false;
+    public:
+        /// Creates an HMA indicator instance.
+        /// @param period Base lookback period used by the HMA.
+        /// @param prevCalc Optional warm-start buffer containing the latest `period`
+        /// prices ordered from past to present (oldest to newest).
+        HullMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+        /// Computes HMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with HMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the HMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated HMA value.
+        double update(double price);
+
+        /// Returns the latest HMA value stored by the indicator.
+        double latest();
+    };
+
+    /// Stateful Double Exponential Moving Average (DEMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class DoubleExponentialMovingAverage {
+    private:
+        size_t period;
+        ExponentialMovingAverage ema1;
+        ExponentialMovingAverage ema2;
+        bool initialized{false};
+        double lastDema{0.0};
+    public:
+        /// Creates a DEMA indicator instance.
+        /// @param period Lookback period used by the EMA cascade.
+        /// @param prevCalc Optional warm-start buffer containing the latest `period`
+        /// prices ordered from past to present (oldest to newest).
+        DoubleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+        /// Computes DEMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with DEMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the DEMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated DEMA value.
+        double update(double price);
+
+        /// Returns the latest DEMA value stored by the indicator.
+        double latest();
+    };
+
+    /// Stateful Triple Exponential Moving Average (TEMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class TripleExponentialMovingAverage {
+    private:
+        size_t period;
+        ExponentialMovingAverage ema1;
+        ExponentialMovingAverage ema2;
+        ExponentialMovingAverage ema3;
+        bool initialized{false};
+        double lastTema{0.0};
+    public:
+        /// Creates a TEMA indicator instance.
+        /// @param period Lookback period used by the EMA cascade.
+        /// @param prevCalc Optional warm-start buffer containing the latest `period`
+        /// prices ordered from past to present (oldest to newest).
+        TripleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+        /// Computes TEMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with TEMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the TEMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated TEMA value.
+        double update(double price);
+
+        /// Returns the latest TEMA value stored by the indicator.
+        double latest();
+    };
     
-    /// Calculates the Volume-Weighted Moving Average (VWMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param volume Input vector of volumes aligned with prices.
-    /// @param vwmaOut Output vector that will contain the VWMA values.
-    /// @param vwmaPeriod The period over which to calculate the VWMA.
-    /// @return status indicating success or failure.
-    status vwma(std::span<const double> prices, std::span<const double> volume, std::vector<double>& vwmaOut, const uint16_t vwmaPeriod);
+    /// Stateful McGinley Dynamic (MD) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class McGinleyDynamicMovingAverage {
+    private:
+        uint16_t period;
+        double lastMd{0.0};
+        bool initialized{false};
 
-    /// Calculates the Double Exponential Moving Average (DEMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param demaOut Output vector that will contain the DEMA values.
-    /// @param demaPeriod The period over which to calculate the DEMA.
-    /// @return status indicating success or failure.
-    status dema(std::span<const double> prices, std::vector<double>& demaOut, const uint16_t demaPeriod);
+    public:
+        /// Creates an MD indicator instance.
+        /// @param period Base lookback period used in the MD calculation.
+        /// @param prevCalculation Optional previous MD value used as warm start.
+        McGinleyDynamicMovingAverage(uint16_t period, double prevCalculation = 0.0);
 
-    /// Calculates the Triple Exponential Moving Average (TEMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param temaOut Output vector that will contain the TEMA values.
-    /// @param temaPeriod The period over which to calculate the TEMA.
-    /// @return status indicating success or failure.
-    status tema(std::span<const double> prices, std::vector<double>& temaOut, const uint16_t temaPeriod);
-    
-    /// Calculates the Hull Moving Average (HMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param hullOut Output vector that will contain the HMA values.
-    /// @param hullPeriod The period over which to calculate the HMA.
-    /// @return status indicating success or failure.
-    status hull(std::span<const double> prices, std::vector<double>& hullOut, const uint16_t hullPeriod);
+        /// Computes MD values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with MD values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
 
-    /// Calculates the McGinley Dynamic (MD), an adaptive moving average that
-    /// adjusts its speed based on market volatility to reduce whipsaws.
-    /// @param prices Input vector of prices (typically Close).
-    /// @param mdOut Output vector that will contain the McGinley Dynamic values.
-    /// @param mdPeriod The base lookback period used in the MD calculation.
-    /// @return status indicating success or failure.
-    status md(std::span<const double> prices, std::vector<double>& mdOut, uint16_t mdPeriod);
+        /// Updates the MD with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated MD value.
+        double update(double price);
+
+        /// Returns the latest MD value stored by the indicator.
+        double latest();
+    };
  } // namespace tama
- 
+
+
+

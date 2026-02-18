@@ -5,6 +5,8 @@
 #include <chrono>
 #include <utility>
 #include <cstdio>
+#include <cmath>
+#include <iomanip>
 
 using namespace tama;
 
@@ -38,72 +40,250 @@ void benchmark(const char* name, F&& f, int iterations = 10) {
     std::printf("%-5s -> %5.3f ms/op\n", name, avg_ms);
 }
 
+void print_vector(const char* label, const std::vector<double>& values) {
+    std::cout << label << " [";
+    std::cout << std::fixed << std::setprecision(6);
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (i != 0) {
+            std::cout << ", ";
+        }
+        std::cout << values[i];
+    }
+    std::cout << "]\n";
+}
+
+void benchmark_stateful_wma() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    WeightedMovingAverage w(period);
+
+    long long computeNs = measure_ns([&]() {
+        w.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            w.update(price);
+        }
+    });
+
+    std::printf("\nStateful WMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_ema() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    ExponentialMovingAverage ema(period);
+
+    long long computeNs = measure_ns([&]() {
+        ema.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            ema.update(price);
+        }
+    });
+
+    std::printf("\nStateful EMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_sma() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    SimpleMovingAverage sma(period);
+
+    long long computeNs = measure_ns([&]() {
+        sma.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            sma.update(price);
+        }
+    });
+
+    std::printf("\nStateful SMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_hull() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    HullMovingAverage hma(period);
+
+    long long computeNs = measure_ns([&]() {
+        hma.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            hma.update(price);
+        }
+    });
+
+    std::printf("\nStateful HMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_vwma() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> initialVolumes = make_random_doubles(initialCount, 1.0, 1'000.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+    std::vector<double> updateVolumes = make_random_doubles(updateCount, 1.0, 1'000.0);
+
+    std::vector<double> out;
+    VolumeWeightedMovingAverage vwma(period);
+
+    long long computeNs = measure_ns([&]() {
+        vwma.compute(initialPrices, initialVolumes, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (std::size_t i = 0; i < updateCount; ++i) {
+            vwma.update(updatePrices[i], updateVolumes[i]);
+        }
+    });
+
+    std::printf("\nStateful VWMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_dema() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    DoubleExponentialMovingAverage dema(period);
+
+    long long computeNs = measure_ns([&]() {
+        dema.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            dema.update(price);
+        }
+    });
+
+    std::printf("\nStateful DEMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_tema() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    TripleExponentialMovingAverage tema(period);
+
+    long long computeNs = measure_ns([&]() {
+        tema.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            tema.update(price);
+        }
+    });
+
+    std::printf("\nStateful TEMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_md() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 10;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    McGinleyDynamicMovingAverage md(period);
+
+    long long computeNs = measure_ns([&]() {
+        md.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            md.update(price);
+        }
+    });
+
+    std::printf("\nStateful MD timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+
+
+
+
+
 int main() {
-    std::size_t n = 100'000;
-    std::vector<double> prices = make_random_doubles(n, 1.0, 100.0);
-    std::vector<double> volume = make_random_doubles(n, 100.0, 10'000.0);
-
-    std::vector<double> out(prices.size());
-    std::vector<double> out2(prices.size());
-
-    const uint16_t period = 50;
-    const int iterations = 10;
-
-    benchmark("SMA", [&] {
-        status res = sma(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "SMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("EMA", [&] {
-        status res = ema(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "EMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("WMA", [&] {
-        status res = wma(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "WMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("VWMA", [&] {
-        status res = vwma(prices, volume, out, period);
-        if (res != status::ok) {
-            std::cerr << "VWMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("DEMA", [&] {
-        status res = dema(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "DEMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("TEMA", [&] {
-        status res = tema(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "TEMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("HMA", [&] {
-        status res = hull(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "HMA failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
-
-    benchmark("MD", [&] {
-        status res = md(prices, out, period);
-        if (res != status::ok) {
-            std::cerr << "MD failed with status " << static_cast<int>(res) << '\n';
-        }
-    }, iterations);
+    benchmark_stateful_wma();
+    benchmark_stateful_ema();
+    benchmark_stateful_sma();
+    benchmark_stateful_hull();
+    benchmark_stateful_vwma();
+    benchmark_stateful_dema();
+    benchmark_stateful_tema();
+    benchmark_stateful_md();
 
     return 0;
 }

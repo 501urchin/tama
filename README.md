@@ -15,15 +15,14 @@ Included indicators:
 
 Design goals:
 
-- Minimal API with explicit inputs and outputs
+- Minimal, stateful API with explicit inputs and outputs
 - Easy to integrate into existing C++ trading code
 
 ## TODO
 
-- Add a way to reuse previous calculation. A idea could be to add a optionnal 'prevCalc' param to each func and if its not empty use it
-- Implement kama.
-- Implement Generalized dema.
-- Implement frama.
+- Implement KAMA.
+- Implement generalized DEMA.
+- Implement FRAMA.
 
 ## Installation
 
@@ -56,17 +55,24 @@ target_link_libraries(your_target PRIVATE tama)
 
 int main() {
 	std::vector<double> prices{10, 12, 11, 13, 12, 14, 15, 13, 14, 16};
-	std::vector<double> emaOut(prices.size());
+	std::vector<double> emaOut;
 
-	// Ensure the output vector is at least as large as the input vector.
-	// If it is smaller, tama::ema will attempt to resize it internally.
-	tama::status res = tama::ema(prices, emaOut, 3);
-	if (res != tama::status::ok) {
+	tama::ExponentialMovingAverage ema(3);
+    
+    status res = ema.compute(prices, emaOut);
+	if (res != status::ok) {
 		std::cerr << "tama::ema failed" << std::endl;
 		return 1;
 	}
 
-	std::cout << "Latest EMA: " << emaOut.back() << std::endl;
+	double newTick = 17;
+
+	// update() consumes one new price and advances the EMA without reprocessing the full series.
+	// Initialize via compute() 
+	// or pass a previous EMA value to the constructor (e.g., ExponentialMovingAverage(3, 14.875)).
+	double latestEma = ema.update(newTick);
+
+	std::cout << "Latest EMA: " << latestEma << std::endl;
 	return 0;
 }
 ```
