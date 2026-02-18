@@ -1,86 +1,186 @@
 #include <vector>
+#include <stdexcept>
 #include <tama/tama.hpp>
 
-namespace tama {
-    status dema(std::span<const double> prices, std::vector<double>& demaOut, const uint16_t demaPeriod) {
-        if (prices.empty()) {
-            return status::emptyParams;
+namespace {
+    uint16_t require_period(uint16_t period) {
+        if (period == 0) {
+            throw std::invalid_argument("invalid period");
+        }
+        return period;
+    }
+}
+
+tama::DoubleExponentialMovingAverage::DoubleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc)
+    : period(static_cast<size_t>(require_period(period))),
+      ema1(period),
+      ema2(period),
+      initialized(false),
+      lastDema(0.0) {
+    if (!prevCalc.empty()) {
+        if (prevCalc.size() != this->period) {
+            throw std::invalid_argument("prevCalc buffer doesn't match period");
         }
 
-        if (demaPeriod == 0) {
-            return status::invalidParam;
-        }
+        std::vector<double> emaAOut(prevCalc.size());
+        std::vector<double> emaBOut(prevCalc.size());
 
-        const size_t pricesLen = prices.size();
-        if (demaOut.size() < pricesLen) {
-            demaOut.resize(pricesLen);
-        }
-
-        std::vector<double> emaAOut(pricesLen);
-        std::vector<double> emaBOut(pricesLen);
-
-        ExponentialMovingAverage ema(demaPeriod);
-        status res = ema.compute(prices, emaAOut);
+        status res = this->ema1.compute(prevCalc, emaAOut);
         if (res != status::ok) {
-            return res;
+            return;
         }
 
-        ExponentialMovingAverage ema2(demaPeriod);
-        res = ema2.compute(emaAOut, emaBOut);
+        res = this->ema2.compute(emaAOut, emaBOut);
         if (res != status::ok) {
-            return res;
+            return;
         }
 
-        // simd
-        for (size_t i = 0; i < pricesLen; i++) {
-            demaOut[i] = 2 * emaAOut[i] - emaBOut[i];
-        }
+        this->lastDema = 2.0 * emaAOut.back() - emaBOut.back();
+        this->initialized = true;
+    }
+}
 
-        return status::ok;
+status tama::DoubleExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
+    if (prices.empty()) {
+        return status::emptyParams;
     }
 
-    status tema(std::span<const double> prices, std::vector<double>& temaOut, const uint16_t temaPeriod) {
-        if (prices.empty()) {
-            return status::emptyParams;
-        }
-
-        if (temaPeriod == 0) {
-            return status::invalidParam;
-        }
-
-        const size_t pricesLen = prices.size();
-        if (temaOut.size() != pricesLen) {
-            temaOut.resize(pricesLen);
-        }
-
-        std::vector<double> emaAOut(pricesLen);
-        std::vector<double> emaBOut(pricesLen);
-        std::vector<double> emaCOut(pricesLen);
-
-        ExponentialMovingAverage ema(temaPeriod);
-        status res = ema.compute(prices, emaAOut);
-        if (res != status::ok) {
-            return res;
-        }
-
-        ExponentialMovingAverage ema2(temaPeriod);
-        res = ema2.compute(emaAOut, emaBOut);
-        if (res != status::ok) {
-            return res;
-        }
-
-        ExponentialMovingAverage ema3(temaPeriod);
-        res = ema3.compute(emaBOut, emaCOut);
-        if (res != status::ok) {
-            return res;
-        }
-
-        // simd
-        for (size_t i = 0; i < pricesLen; i++) {
-            temaOut[i] = 3 * emaAOut[i] - 3 * emaBOut[i] + emaCOut[i];
-        }
-
-        return status::ok;
+    const size_t pricesLen = prices.size();
+    if (output.size() < pricesLen) {
+        output.resize(pricesLen);
     }
 
+    std::vector<double> emaAOut(pricesLen);
+    std::vector<double> emaBOut(pricesLen);
+
+    status res = this->ema1.compute(prices, emaAOut);
+    if (res != status::ok) {
+        return res;
+    }
+
+    res = this->ema2.compute(emaAOut, emaBOut);
+    if (res != status::ok) {
+        return res;
+    }
+
+    // simd
+    for (size_t i = 0; i < pricesLen; i++) {
+        output[i] = 2.0 * emaAOut[i] - emaBOut[i];
+    }
+
+    this->lastDema = output.back();
+    this->initialized = true;
+
+    return status::ok;
+}
+
+double tama::DoubleExponentialMovingAverage::update(double price) {
+    if (!this->initialized) {
+        return 0.0;
+    }
+
+    const double ema1Value = this->ema1.update(price);
+    const double ema2Value = this->ema2.update(ema1Value);
+
+    const double dema = 2.0 * ema1Value - ema2Value;
+    this->lastDema = dema;
+    return dema;
+}
+
+double tama::DoubleExponentialMovingAverage::latest() {
+    return this->lastDema;
+}
+
+tama::TripleExponentialMovingAverage::TripleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc)
+    : period(static_cast<size_t>(require_period(period))),
+      ema1(period),
+      ema2(period),
+      ema3(period),
+      initialized(false),
+      lastTema(0.0) {
+    if (!prevCalc.empty()) {
+        if (prevCalc.size() != this->period) {
+            throw std::invalid_argument("prevCalc buffer doesn't match period");
+        }
+
+        std::vector<double> emaAOut(prevCalc.size());
+        std::vector<double> emaBOut(prevCalc.size());
+        std::vector<double> emaCOut(prevCalc.size());
+
+        status res = this->ema1.compute(prevCalc, emaAOut);
+        if (res != status::ok) {
+            return;
+        }
+
+        res = this->ema2.compute(emaAOut, emaBOut);
+        if (res != status::ok) {
+            return;
+        }
+
+        res = this->ema3.compute(emaBOut, emaCOut);
+        if (res != status::ok) {
+            return;
+        }
+
+        this->lastTema = 3.0 * emaAOut.back() - 3.0 * emaBOut.back() + emaCOut.back();
+        this->initialized = true;
+    }
+}
+
+status tama::TripleExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
+    if (prices.empty()) {
+        return status::emptyParams;
+    }
+
+    const size_t pricesLen = prices.size();
+    if (output.size() < pricesLen) {
+        output.resize(pricesLen);
+    }
+
+    std::vector<double> emaAOut(pricesLen);
+    std::vector<double> emaBOut(pricesLen);
+    std::vector<double> emaCOut(pricesLen);
+
+    status res = this->ema1.compute(prices, emaAOut);
+    if (res != status::ok) {
+        return res;
+    }
+
+    res = this->ema2.compute(emaAOut, emaBOut);
+    if (res != status::ok) {
+        return res;
+    }
+
+    res = this->ema3.compute(emaBOut, emaCOut);
+    if (res != status::ok) {
+        return res;
+    }
+
+    // simd
+    for (size_t i = 0; i < pricesLen; i++) {
+        output[i] = 3.0 * emaAOut[i] - 3.0 * emaBOut[i] + emaCOut[i];
+    }
+
+    this->lastTema = output.back();
+    this->initialized = true;
+
+    return status::ok;
+}
+
+double tama::TripleExponentialMovingAverage::update(double price) {
+    if (!this->initialized) {
+        return 0.0;
+    }
+
+    const double ema1Value = this->ema1.update(price);
+    const double ema2Value = this->ema2.update(ema1Value);
+    const double ema3Value = this->ema3.update(ema2Value);
+
+    const double tema = 3.0 * ema1Value - 3.0 * ema2Value + ema3Value;
+    this->lastTema = tema;
+    return tema;
+}
+
+double tama::TripleExponentialMovingAverage::latest() {
+    return this->lastTema;
 }

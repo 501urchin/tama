@@ -163,19 +163,68 @@ namespace tama {
         double latest();
     };
 
-    /// Calculates the Double Exponential Moving Average (DEMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param demaOut Output vector that will contain the DEMA values.
-    /// @param demaPeriod The period over which to calculate the DEMA.
-    /// @return status indicating success or failure.
-    status dema(std::span<const double> prices, std::vector<double>& demaOut, const uint16_t demaPeriod);
+    /// Stateful Double Exponential Moving Average (DEMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class DoubleExponentialMovingAverage {
+    private:
+        size_t period;
+        ExponentialMovingAverage ema1;
+        ExponentialMovingAverage ema2;
+        bool initialized{false};
+        double lastDema{0.0};
+    public:
+        /// Creates a DEMA indicator instance.
+        /// @param period Lookback period used by the EMA cascade.
+        /// @param prevCalc Optional warm-start buffer containing the latest `period`
+        /// prices ordered from past to present (oldest to newest).
+        DoubleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
 
-    /// Calculates the Triple Exponential Moving Average (TEMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param temaOut Output vector that will contain the TEMA values.
-    /// @param temaPeriod The period over which to calculate the TEMA.
-    /// @return status indicating success or failure.
-    status tema(std::span<const double> prices, std::vector<double>& temaOut, const uint16_t temaPeriod);
+        /// Computes DEMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with DEMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the DEMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated DEMA value.
+        double update(double price);
+
+        /// Returns the latest DEMA value stored by the indicator.
+        double latest();
+    };
+
+    /// Stateful Triple Exponential Moving Average (TEMA) indicator.
+    /// Supports both batch computation and single-tick updates.
+    class TripleExponentialMovingAverage {
+    private:
+        size_t period;
+        ExponentialMovingAverage ema1;
+        ExponentialMovingAverage ema2;
+        ExponentialMovingAverage ema3;
+        bool initialized{false};
+        double lastTema{0.0};
+    public:
+        /// Creates a TEMA indicator instance.
+        /// @param period Lookback period used by the EMA cascade.
+        /// @param prevCalc Optional warm-start buffer containing the latest `period`
+        /// prices ordered from past to present (oldest to newest).
+        TripleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+
+        /// Computes TEMA values for the full input series.
+        /// @param prices Input price series.
+        /// @param output Output vector resized/written with TEMA values.
+        /// @return status indicating success or failure.
+        status compute(std::span<const double> prices, std::vector<double>& output);
+
+        /// Updates the TEMA with a single new price sample.
+        /// @param price New price value.
+        /// @return Updated TEMA value.
+        double update(double price);
+
+        /// Returns the latest TEMA value stored by the indicator.
+        double latest();
+    };
     
     /// Calculates the McGinley Dynamic (MD), an adaptive moving average that
     /// adjusts its speed based on market volatility to reduce whipsaws.

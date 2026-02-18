@@ -1,11 +1,12 @@
 #include <gtest/gtest.h>
 #include <tama/tama.hpp>
 #include <vector>
+#include <stdexcept>
 
 using std::vector;
 
-using tama::dema;
-using tama::tema;
+using tama::DoubleExponentialMovingAverage;
+using tama::TripleExponentialMovingAverage;
 
 
 TEST(TamaTest, DemaMatchesKnownValues_test) {
@@ -13,7 +14,8 @@ TEST(TamaTest, DemaMatchesKnownValues_test) {
     const vector<double> expected{10, 11.5, 11.25, 12.625, 12.3125, 13.6562, 14.8281, 13.6641, 13.957, 15.541};
     vector<double> demaOut;
 
-    dema(prices, demaOut, 3);
+    DoubleExponentialMovingAverage dema(3);
+    dema.compute(prices, demaOut);
 
     ASSERT_EQ(demaOut.size(), prices.size());
     for (size_t i = 0; i < expected.size(); i++) {
@@ -25,7 +27,8 @@ TEST(TamaTest, DemaRejectsEmptyParams_test) {
     const vector<double> prices{};
     vector<double> demaOut{1.0, 2.0};
 
-    const auto result = dema(prices, demaOut, 3);
+    DoubleExponentialMovingAverage dema(3);
+    const auto result = dema.compute(prices, demaOut);
 
     EXPECT_EQ(result, status::emptyParams);
     EXPECT_EQ(demaOut.size(), 2u);
@@ -35,7 +38,7 @@ TEST(TamaTest, DemaRejectsInvalidParams_test) {
     const vector<double> prices{10, 11, 12};
     vector<double> demaOut;
 
-    EXPECT_EQ(dema(prices, demaOut, 0), status::invalidParam);
+    EXPECT_THROW(DoubleExponentialMovingAverage(0), std::invalid_argument);
 }
 
 TEST(TamaTest, TemaMatchesKnownValues_test) {
@@ -43,7 +46,8 @@ TEST(TamaTest, TemaMatchesKnownValues_test) {
     const vector<double> expected{10, 11.75, 11.25, 12.8125, 12.25, 13.7969, 14.9844, 13.4102, 13.8516, 15.7178};
     vector<double> temaOut;
 
-    tema(prices, temaOut, 3);
+    TripleExponentialMovingAverage tema(3);
+    tema.compute(prices, temaOut);
 
     ASSERT_EQ(temaOut.size(), prices.size());
     for (size_t i = 0; i < expected.size(); i++) {
@@ -55,7 +59,8 @@ TEST(TamaTest, TemaRejectsEmptyParams_test) {
     const vector<double> prices{};
     vector<double> temaOut{1.0, 2.0};
 
-    const auto result = tema(prices, temaOut, 3);
+    TripleExponentialMovingAverage tema(3);
+    const auto result = tema.compute(prices, temaOut);
 
     EXPECT_EQ(result, status::emptyParams);
     EXPECT_EQ(temaOut.size(), 2u);
@@ -65,7 +70,7 @@ TEST(TamaTest, TemaRejectsInvalidParams_test) {
     const vector<double> prices{10, 11, 12};
     vector<double> temaOut;
 
-    EXPECT_EQ(tema(prices, temaOut, 0), status::invalidParam);
+    EXPECT_THROW(TripleExponentialMovingAverage(0), std::invalid_argument);
 }
 
 
