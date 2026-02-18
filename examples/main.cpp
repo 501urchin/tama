@@ -6,6 +6,7 @@
 #include <utility>
 #include <cstdio>
 #include <cmath>
+#include <iomanip>
 
 using namespace tama;
 
@@ -37,6 +38,18 @@ void benchmark(const char* name, F&& f, int iterations = 10) {
     }
     double avg_ms = static_cast<double>(total_ns) / static_cast<double>(iterations) / 1'000'000.0;
     std::printf("%-5s -> %5.3f ms/op\n", name, avg_ms);
+}
+
+void print_vector(const char* label, const std::vector<double>& values) {
+    std::cout << label << " [";
+    std::cout << std::fixed << std::setprecision(6);
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (i != 0) {
+            std::cout << ", ";
+        }
+        std::cout << values[i];
+    }
+    std::cout << "]\n";
 }
 
 void benchmark_stateful_wma() {
@@ -147,19 +160,46 @@ void benchmark_stateful_hull() {
     std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
 }
 
+void benchmark_stateful_vwma() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> initialVolumes = make_random_doubles(initialCount, 1.0, 1'000.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+    std::vector<double> updateVolumes = make_random_doubles(updateCount, 1.0, 1'000.0);
+
+    std::vector<double> out;
+    VolumeWeightedMovingAverage vwma(period);
+
+    long long computeNs = measure_ns([&]() {
+        vwma.compute(initialPrices, initialVolumes, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (std::size_t i = 0; i < updateCount; ++i) {
+            vwma.update(updatePrices[i], updateVolumes[i]);
+        }
+    });
+
+    std::printf("\nStateful VWMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
 
 
 
 
 
 int main() {
-
-
-
     benchmark_stateful_wma();
     benchmark_stateful_ema();
     benchmark_stateful_sma();
     benchmark_stateful_hull();
+    benchmark_stateful_vwma();
 
     return 0;
 }

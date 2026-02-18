@@ -6,7 +6,7 @@ using std::vector;
 using namespace tama;
 
 
-TEST(TamaTest, SmaMatchesKnownValues) {
+TEST(TamaTest, SmaMatchesKnownValues_test) {
     const vector<double> prices{11, 12, 14, 18, 12, 15, 13, 16, 10};
     const vector<double> expected{0, 0, 12.333, 14.667, 14.667, 15, 13.333, 14.667, 13};
     vector<double> smaOut;
@@ -21,7 +21,7 @@ TEST(TamaTest, SmaMatchesKnownValues) {
     }
 }
 
-TEST(TamaTest, SmaComputeThenUpdateMatchesKnownValues) {
+TEST(TamaTest, SmaComputeThenUpdateMatchesKnownValues_test) {
     const vector<double> prices{11, 12, 14, 18, 12, 15, 13, 16, 10};
     const vector<double> expected{0, 0, 12.333, 14.667, 14.667, 15, 13.333, 14.667, 13};
     const size_t period = 3;
@@ -47,7 +47,7 @@ TEST(TamaTest, SmaComputeThenUpdateMatchesKnownValues) {
     }
 }
 
-TEST(TamaTest, SmaRejectsemptyParams) {
+TEST(TamaTest, SmaRejectsemptyParams_test) {
     const vector<double> prices{};
     vector<double> smaOut{1.0, 2.0};
     SimpleMovingAverage smaCalc(3);
@@ -58,7 +58,7 @@ TEST(TamaTest, SmaRejectsemptyParams) {
     EXPECT_EQ(smaOut.size(), 2u);
 }
 
-TEST(TamaTest, SmaRejectsInvalidParams) {
+TEST(TamaTest, SmaRejectsInvalidParams_test) {
     const vector<double> prices{10, 11, 12};
     vector<double> smaOut;
     SimpleMovingAverage smaCalcEqualSize(3);
@@ -67,7 +67,7 @@ TEST(TamaTest, SmaRejectsInvalidParams) {
     EXPECT_EQ(smaCalcEqualSize.compute(prices, smaOut), status::invalidParam);
 }
 
-TEST(TamaTest, SmaConstructorUsesPreviousWindowForUpdate) {
+TEST(TamaTest, SmaConstructorUsesPreviousWindowForUpdate_test) {
     const vector<double> prices{11, 12, 14, 18, 12, 15, 13, 16, 10};
     const size_t period = 3;
     const double newPrice = 19.0;

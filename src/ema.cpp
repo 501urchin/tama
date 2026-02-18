@@ -3,31 +3,30 @@
 #include <stdexcept>
 #include <tama/tama.hpp>
 
-tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation) {
-    this->period = static_cast<double>(period);
+tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation)
+    : lastEma(0.0),
+      period(static_cast<double>(period)),
+      alpha(0.0),
+      oma(0.0),
+      initalized(false) {
     if (period == 0) {
         throw std::invalid_argument("invalid period");
     }
 
     this->alpha = 2.0 / (this->period + 1.0);
-    this->oma = 1.0 - alpha;
+    this->oma = 1.0 - this->alpha;
     if (!std::isnan(prevCalculation)) {
         this->lastEma = prevCalculation;
         this->initalized = true;
     }
 }
 
-
-
-status tama::ExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output){
-    if (prices.empty() ) {
+status tama::ExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
+    if (prices.empty()) {
         return status::emptyParams;
     }
 
-    if (this->period == 0) {
-        return status::invalidParam;
-    }
-    size_t pricesLen = prices.size();
+    const size_t pricesLen = prices.size();
 
     if (output.size() < pricesLen) {
         output.resize(pricesLen);
@@ -35,7 +34,7 @@ status tama::ExponentialMovingAverage::compute(std::span<const double> prices, s
     output[0] = prices[0];
 
     for (size_t t = 1; t < pricesLen; t++) {
-        output[t] = this->alpha * prices[t] + this->oma * output[t-1];
+        output[t] = this->alpha * prices[t] + this->oma * output[t - 1];
     }
 
     this->initalized = true;
@@ -44,7 +43,7 @@ status tama::ExponentialMovingAverage::compute(std::span<const double> prices, s
     return status::ok;
 }
 
-double tama::ExponentialMovingAverage::update(double price){
+double tama::ExponentialMovingAverage::update(double price) {
     if (!this->initalized) {
         return 0.0;
     }
@@ -54,6 +53,6 @@ double tama::ExponentialMovingAverage::update(double price){
     return ema;
 }
 
-double tama::ExponentialMovingAverage::latest(){
+double tama::ExponentialMovingAverage::latest() {
     return this->lastEma;
 }

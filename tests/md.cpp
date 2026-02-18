@@ -6,7 +6,7 @@ using std::vector;
 
 using tama::md;
 
-TEST(TamaTest, MdMatchesKnownValues) {
+TEST(TamaTest, MdMatchesKnownValues_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const vector<double> expected{11.0000, 11.0708, 11.1851, 11.2866, 11.3425, 11.4621, 11.5551, 11.6758, 11.3634};
     vector<double> mdOut;
@@ -20,7 +20,7 @@ TEST(TamaTest, MdMatchesKnownValues) {
     }
 }
 
-TEST(TamaTest, MdRejectsEmptyParams) {
+TEST(TamaTest, MdRejectsEmptyParams_test) {
     const vector<double> prices{};
     vector<double> mdOut{1.0, 2.0};
 
@@ -30,7 +30,7 @@ TEST(TamaTest, MdRejectsEmptyParams) {
     EXPECT_EQ(mdOut.size(), 2u);
 }
 
-TEST(TamaTest, MdRejectsInvalidParams) {
+TEST(TamaTest, MdRejectsInvalidParams_test) {
     const vector<double> prices{10.0, 11.0, 12.0};
     vector<double> mdOut;
 

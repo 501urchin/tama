@@ -13,18 +13,12 @@ enum class status : uint8_t {
 };
 
 
-
-
-
-
-
-
 namespace tama {
     /// Stateful Exponential Moving Average (EMA) indicator.
     /// Supports both batch computation and single-tick updates.
     class ExponentialMovingAverage {
     private:
-        double lastEma;
+        double lastEma{0.0};
         double period;
         double alpha;
         double oma;
@@ -57,9 +51,9 @@ namespace tama {
         double alpha;
         size_t period;
         helpers::RingBuffer<double> priceBuf;
-        double rollingSum;
-        bool initalized;
-        double lastSma;
+        double rollingSum{0.0};
+        bool initalized{false};
+        double lastSma{0.0};
     public:
         /// Creates an SMA indicator instance.
         /// @param period Number of samples used in the SMA window.
@@ -87,10 +81,12 @@ namespace tama {
             double denominator;
 
             helpers::RingBuffer<double> priceBuf;
-            double rollingSum = 0;
-            double rollingWeightedSum = 0;
-            bool initalized = false;
-            double lastWma;
+
+            double rollingSum{0.0};
+            double rollingWeightedSum{0.0};
+
+            bool initialized{false};
+            double lastWma{0.0};
 
         public:
             /// Creates a WMA indicator instance.
@@ -119,12 +115,17 @@ namespace tama {
             size_t period;
             helpers::RingBuffer<double> priceBuf;
             helpers::RingBuffer<double> volumeBuf;
+            
+            double rollingNumerator;
+            double rollingDenominator;
+
+            bool initialized;
+            double lastCalculation;
         public:
             VolumeWeightedMovingAverage(uint16_t period, std::vector<double> prevPrices = {}, std::vector<double> prevVolume = {});
             status compute(std::span<const double> prices, std::span<const double> volume, std::vector<double>& output);
             double update(double price, double volume);
             double latest();
-
     };
 
 
@@ -161,14 +162,6 @@ namespace tama {
         /// Returns the latest HMA value stored by the indicator.
         double latest();
     };
-
-    /// Calculates the Volume-Weighted Moving Average (VWMA) of a price series.
-    /// @param prices Input vector of prices (Close, Open, High, Low).
-    /// @param volume Input vector of volumes aligned with prices.
-    /// @param vwmaOut Output vector that will contain the VWMA values.
-    /// @param vwmaPeriod The period over which to calculate the VWMA.
-    /// @return status indicating success or failure.
-    status vwma(std::span<const double> prices, std::span<const double> volume, std::vector<double>& vwmaOut, const uint16_t vwmaPeriod);
 
     /// Calculates the Double Exponential Moving Average (DEMA) of a price series.
     /// @param prices Input vector of prices (Close, Open, High, Low).

@@ -3,7 +3,7 @@
 
 #include <tama/helpers.hpp>
 
-TEST(RingBufferTest, ReadsInitialOrderFromHead) {
+TEST(RingBufferTest, ReadsInitialOrderFromHead_test) {
     const std::vector<int> values{1, 2, 3};
     helpers::RingBuffer<int> buffer(values.size());
 
@@ -14,7 +14,7 @@ TEST(RingBufferTest, ReadsInitialOrderFromHead) {
     EXPECT_EQ(buffer[2], 3);
 }
 
-TEST(RingBufferTest, InsertAdvancesHeadAndOverwrites) {
+TEST(RingBufferTest, InsertAdvancesHeadAndOverwrites_test) {
     const std::vector<int> values{1, 2, 3};
     helpers::RingBuffer<int> buffer(values.size());
 

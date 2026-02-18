@@ -14,13 +14,12 @@ namespace {
 }
 
 tama::HullMovingAverage::HullMovingAverage(uint16_t period, std::vector<double> prevCalc)
-        : p1(std::max<uint16_t>(1, static_cast<uint16_t>(require_period(period) / 2))),
-            p2(std::max<uint16_t>(1, static_cast<uint16_t>(std::lround(std::sqrt(static_cast<double>(require_period(period))))))),
-            period(require_period(period)),
-            w1(p1),
-            w2(period),
-            w3(p2) {
-
+    : p1(std::max<uint16_t>(1, static_cast<uint16_t>(require_period(period) / 2))),
+      p2(std::max<uint16_t>(1, static_cast<uint16_t>(std::lround(std::sqrt(static_cast<double>(require_period(period))))))),
+      period(require_period(period)),
+      w1(p1),
+      w2(period),
+      w3(p2) {
     if (!prevCalc.empty()) {
         if (prevCalc.size() != this->period) {
             throw std::invalid_argument("prevCalc buffer doesn't match period");
@@ -58,10 +57,6 @@ status tama::HullMovingAverage::compute(std::span<const double> prices, std::vec
         return status::emptyParams;
     }
 
-    if (this->period == 0) {
-        return status::invalidParam;
-    }
-
     const size_t pricesLen = prices.size();
     if (output.size() != pricesLen) {
         output.resize(pricesLen);
@@ -93,9 +88,7 @@ status tama::HullMovingAverage::compute(std::span<const double> prices, std::vec
     }
     
     this->lastHull = output.back();
-    if (!this->initialized) {
-        this->initialized = true;
-    }
+    this->initialized = true;
     
     return status::ok;
 }
@@ -105,11 +98,10 @@ double tama::HullMovingAverage::latest() {
 }
 
 double tama::HullMovingAverage::update(double price) {
-
     double w1 = this->w1.update(price);
     double w2 = this->w2.update(price);
 
-    double res =  this->w3.update(2 * w1 - w2);
+    double res = this->w3.update(2 * w1 - w2);
     this->lastHull = res;
     return res;
 }

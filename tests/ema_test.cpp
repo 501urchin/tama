@@ -8,7 +8,7 @@ using namespace tama;
 
 
 // values come from https://goodcalculators.com/exponential-moving-average-calculator
-TEST(TamaTest, EmaMatchesKnownValues) {
+TEST(TamaTest, EmaMatchesKnownValues_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const vector<double> expected{11,11.5,12.75,15.375,13.688,14.344,13.672,14.836,12.418};
     vector<double> emaOut;
@@ -23,7 +23,7 @@ TEST(TamaTest, EmaMatchesKnownValues) {
     }
 }
 
-TEST(TamaTest, EmaComputeThenUpdateMatchesKnownValues) {
+TEST(TamaTest, EmaComputeThenUpdateMatchesKnownValues_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const vector<double> expected{11,11.5,12.75,15.375,13.688,14.344,13.672,14.836,12.418};
     const size_t split = 5;
@@ -47,7 +47,7 @@ TEST(TamaTest, EmaComputeThenUpdateMatchesKnownValues) {
     }
 }
 
-TEST(TamaTest, EmaRejectsemptyParams) {
+TEST(TamaTest, EmaRejectsemptyParams_test) {
     const vector<double> prices{};
     vector<double> emaOut{1.0, 2.0};
 
@@ -58,7 +58,7 @@ TEST(TamaTest, EmaRejectsemptyParams) {
     EXPECT_EQ(emaOut.size(), 2u);
 }
 
-TEST(TamaTest, EmaConstructorUsesPreviousCalculationForUpdate) {
+TEST(TamaTest, EmaConstructorUsesPreviousCalculationForUpdate_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const double newPrice = 19.0;
     vector<double> emaOut;

@@ -6,7 +6,7 @@ using std::vector;
 
 
 
-TEST(TamaTest, WmaMatchesKnownValues) {
+TEST(TamaTest, WmaMatchesKnownValues_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const vector<double> expected{0, 0, 12.8333, 15.6667, 14.3333 ,14.5, 13.5 ,14.8333 ,12.5};
     vector<double> wmaOut;
@@ -23,7 +23,7 @@ TEST(TamaTest, WmaMatchesKnownValues) {
 
 
 
-TEST(TamaTest, WmaRejectsemptyParams) {
+TEST(TamaTest, WmaRejectsemptyParams_test) {
     const vector<double> prices{};
     vector<double> wmaOut{1.0, 2.0};
 
@@ -35,13 +35,13 @@ TEST(TamaTest, WmaRejectsemptyParams) {
 }
 
 
-TEST(TamaTest, WmaRejectsInvalidParams) {
+TEST(TamaTest, WmaRejectsInvalidParams_test) {
     const vector<double> prices{10, 11, 12};
     vector<double> wmaOut;
     EXPECT_THROW(tama::WeightedMovingAverage(0), std::invalid_argument);
 }
 
-TEST(TamaTest, WmaConstructorUsesPreviousWindowForUpdate) {
+TEST(TamaTest, WmaConstructorUsesPreviousWindowForUpdate_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const size_t period = 3;
     const double newPrice = 19.0;
@@ -59,7 +59,7 @@ TEST(TamaTest, WmaConstructorUsesPreviousWindowForUpdate) {
     EXPECT_NEAR(resumedUpdated, baselineUpdated, 1e-12);
 }
 
-TEST(TamaTest, WmaMultipleUpdatesMatchRecompute) {
+TEST(TamaTest, WmaMultipleUpdatesMatchRecompute_test) {
     const vector<double> prices{10, 11, 12, 13, 14, 15, 16};
     const vector<double> updates{17.0, 18.0, 19.0, 20.0};
     const size_t period = 4;
@@ -84,7 +84,7 @@ TEST(TamaTest, WmaMultipleUpdatesMatchRecompute) {
     }
 }
 
-TEST(TamaTest, WmaComputeThenUpdateMatchesKnownValues) {
+TEST(TamaTest, WmaComputeThenUpdateMatchesKnownValues_test) {
     const vector<double> prices{11,12,14,18,12,15,13,16,10};
     const vector<double> expected{0, 0, 12.8333, 15.6667, 14.3333 ,14.5, 13.5 ,14.8333 ,12.5};
     const size_t period = 3;
