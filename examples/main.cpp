@@ -189,6 +189,60 @@ void benchmark_stateful_vwma() {
     std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
 }
 
+void benchmark_stateful_dema() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    DoubleExponentialMovingAverage dema(period);
+
+    long long computeNs = measure_ns([&]() {
+        dema.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            dema.update(price);
+        }
+    });
+
+    std::printf("\nStateful DEMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
+void benchmark_stateful_tema() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialPrices = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> updatePrices = make_random_doubles(updateCount, 1.0, 100.0);
+
+    std::vector<double> out;
+    TripleExponentialMovingAverage tema(period);
+
+    long long computeNs = measure_ns([&]() {
+        tema.compute(initialPrices, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (double price : updatePrices) {
+            tema.update(price);
+        }
+    });
+
+    std::printf("\nStateful TEMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
 
 
 
@@ -200,6 +254,8 @@ int main() {
     benchmark_stateful_sma();
     benchmark_stateful_hull();
     benchmark_stateful_vwma();
+    benchmark_stateful_dema();
+    benchmark_stateful_tema();
 
     return 0;
 }
