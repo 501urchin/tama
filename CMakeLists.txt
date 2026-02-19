@@ -13,7 +13,7 @@ target_compile_options(tama PRIVATE -Wall -Wextra -Wpedantic)
 
 target_compile_options(tama PRIVATE
     $<$<CONFIG:Release>:-O3 -march=native -flto>
-    $<$<CONFIG:Debug>:-O0 -g>
+    $<$<CONFIG:Debug>:-O0 -march=native -g>
 )
 
 
@@ -23,7 +23,7 @@ if (TAMA_RUN_BUILD)
     target_link_libraries(tama_run PRIVATE tama)
     target_compile_options(tama_run PRIVATE
         $<$<CONFIG:Release>:-O3 -ffast-math -march=native -flto>
-        $<$<CONFIG:Debug>:-O0 -g>
+        $<$<CONFIG:Debug>:-O0 -march=native -g>
         -Wall
     )
 endif()
