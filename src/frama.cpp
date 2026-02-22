@@ -53,11 +53,13 @@ namespace tama {
             double l1 = (*std::max_element(windowOneHigh.begin(), windowOneHigh.end()) - *std::min_element(windowOneLow.begin(), windowOneLow.end())) / this->halfPeriod;
             double l2 = (*std::max_element(windowTwoHigh.begin(), windowTwoHigh.end()) - *std::min_element(windowTwoLow.begin(), windowTwoLow.end())) / this->halfPeriod;
             double l3 = (*std::max_element(fullWindowHigh.begin(), fullWindowHigh.end()) - *std::min_element(fullWindowLow.begin(), fullWindowLow.end())) / this->period;
-            double D = (log(l1 + l2) - log(l3)) / this->logTwo;
-
+            double D = log((l1 + l2) / l3) / this->logTwo;
+            if (D <= 0) {
+                D = 1;
+            }
             double alpha = exp(this->eulerNumber * (D - 1));
 
-            output[i] = output[i-1] + alpha * (close[i] - output[i-1]);
+            output[i] = alpha * close[i] + (1-alpha) * output[i-1];
         }
         
         return status::ok;

@@ -285,28 +285,17 @@ int main() {
     // benchmark_stateful_tema();
     // benchmark_stateful_md();
 
-    auto close = make_random_doubles(20);
-    auto low = make_random_doubles(20);
-    auto high = make_random_doubles(20);
 
-    std::cout  << "high: [ ";
-    for (double r : high) {
-        std::cout << r << " ";
-    }
-    std::cout  << "]\n";
-    std::cout  << "low: [ ";
-    for (double r : low) {
-        std::cout << r << " ";
-    }
-    std::cout  << "]\n";
-    std::cout  << "close: [ ";
-    for (double r : close) {
-        std::cout << r << " ";
-    }
-    std::cout  << "]\n";
+    std::vector<double> high = {0.755156, 0.639031, 0.752145, 0.136273, 0.903269, 0.0940683, 0.57457, 0.372888, 0.273874, 0.390271};
+    std::vector<double> low  = {0.745000, 0.629000, 0.742000, 0.130000, 0.893000, 0.090000, 0.564000, 0.362000, 0.263000, 0.380000};
+    std::vector<double> close= {0.750000, 0.635000, 0.748000, 0.133000, 0.898000, 0.092000, 0.569000, 0.367000, 0.268000, 0.385000};
+
+    print_vector("high",high);
+    print_vector("low",low);
+    print_vector("close",close);
+
     tama::FractalAdaptiveMovingAverage frama(4);
-
-    std::vector<double> output(20);
+    std::vector<double> output(10);
 
     auto res = frama.compute(close, low, high, output);
     if (res != status::ok) {

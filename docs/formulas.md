@@ -41,10 +41,11 @@ L_2 = \frac{\text{max(H)} - \text{min(L)}}{N/2}, \quad
 L_N = \frac{\text{max(H)} - \text{min(L)}}{N}
 $$
 
+
 $$
 \alpha_t = \exp(-4.6 \cdot (D - 1))
 $$
 
 $$
-FRAMA_t = FRAMA_{t-1} + \alpha_t \cdot (P_t - FRAMA_{t-1})
+FRAMA_t =  \alpha_t \cdot P_t +  (1 - \alpha_t) - FRAMA_{t-1}
 $$
