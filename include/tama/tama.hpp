@@ -168,10 +168,13 @@ namespace tama {
     class DoubleExponentialMovingAverage {
     private:
         size_t period;
+
         ExponentialMovingAverage ema1;
         ExponentialMovingAverage ema2;
+
         bool initialized{false};
         double lastDema{0.0};
+
     public:
         /// Creates a DEMA indicator instance.
         /// @param period Lookback period used by the EMA cascade.
@@ -199,11 +202,14 @@ namespace tama {
     class TripleExponentialMovingAverage {
     private:
         size_t period;
+
         ExponentialMovingAverage ema1;
         ExponentialMovingAverage ema2;
         ExponentialMovingAverage ema3;
+
         bool initialized{false};
         double lastTema{0.0};
+
     public:
         /// Creates a TEMA indicator instance.
         /// @param period Lookback period used by the EMA cascade.
@@ -253,6 +259,26 @@ namespace tama {
 
         /// Returns the latest MD value stored by the indicator.
         double latest();
+    };
+
+    class FractalAdaptiveMovingAverage {
+    private:
+        size_t period;
+        double eulerNumber;
+        double halfPeriod;
+        double logTwo;
+
+        helpers::RingBuffer<double> highBuf;
+        helpers::RingBuffer<double> lowBuf;
+        helpers::RingBuffer<double> closeBuf;
+
+        double lastFrama;
+
+    public:
+        FractalAdaptiveMovingAverage(uint16_t period, double eulerNumber = -4.6);
+        status compute(std::span<const double> close, std::span<const double> low, std::span<const double> high, std::vector<double>& output);
+        double latest();
+        double update(double low, double high);
     };
  } // namespace tama
 

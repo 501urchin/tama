@@ -276,14 +276,50 @@ void benchmark_stateful_md() {
 
 
 int main() {
-    benchmark_stateful_wma();
-    benchmark_stateful_ema();
-    benchmark_stateful_sma();
-    benchmark_stateful_hull();
-    benchmark_stateful_vwma();
-    benchmark_stateful_dema();
-    benchmark_stateful_tema();
-    benchmark_stateful_md();
+    // benchmark_stateful_wma();
+    // benchmark_stateful_ema();
+    // benchmark_stateful_sma();
+    // benchmark_stateful_hull();
+    // benchmark_stateful_vwma();
+    // benchmark_stateful_dema();
+    // benchmark_stateful_tema();
+    // benchmark_stateful_md();
+
+    auto close = make_random_doubles(20);
+    auto low = make_random_doubles(20);
+    auto high = make_random_doubles(20);
+
+    std::cout  << "high: [ ";
+    for (double r : high) {
+        std::cout << r << " ";
+    }
+    std::cout  << "]\n";
+    std::cout  << "low: [ ";
+    for (double r : low) {
+        std::cout << r << " ";
+    }
+    std::cout  << "]\n";
+    std::cout  << "close: [ ";
+    for (double r : close) {
+        std::cout << r << " ";
+    }
+    std::cout  << "]\n";
+    tama::FractalAdaptiveMovingAverage frama(4);
+
+    std::vector<double> output(20);
+
+    auto res = frama.compute(close, low, high, output);
+    if (res != status::ok) {
+        std::cout << "failed" << std::endl;
+        return 1;
+    }
+
+    std::cout  << "[ ";
+    for (double r : output) {
+        std::cout << r << " ";
+    }
+    std::cout  << "]\n";
+
 
     return 0;
 }
