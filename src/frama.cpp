@@ -40,15 +40,15 @@ namespace tama {
             output[i] = close[i];
         }
 
-
+        // edge case: what if period is uneven? how wil window splitting be handled
         for (size_t i = this->period; i <  closeLen; i++) {
             std::span<const double> fullWindowHigh =  high.subspan(i - this->period, this->period);
-            std::span<const double> windowOneHigh =  high.subspan(i - this->period, this->period/2);
-            std::span<const double> windowTwoHigh = high.subspan(i - this->period/2, this->period/2);
+            std::span<const double> windowOneHigh =  high.subspan(i - this->period, this->halfPeriod);
+            std::span<const double> windowTwoHigh = high.subspan(i - this->halfPeriod, this->halfPeriod);
             
             std::span<const double> fullWindowLow =  low.subspan(i - this->period, this->period);
-            std::span<const double> windowOneLow =  low.subspan(i - this->period, this->period/2);
-            std::span<const double> windowTwoLow = low.subspan(i - this->period/2, this->period/2);
+            std::span<const double> windowOneLow =  low.subspan(i - this->period, this->halfPeriod);
+            std::span<const double> windowTwoLow = low.subspan(i - this->halfPeriod, this->halfPeriod);
 
             double l1 = (*std::max_element(windowOneHigh.begin(), windowOneHigh.end()) - *std::min_element(windowOneLow.begin(), windowOneLow.end())) / this->halfPeriod;
             double l2 = (*std::max_element(windowTwoHigh.begin(), windowTwoHigh.end()) - *std::min_element(windowTwoLow.begin(), windowTwoLow.end())) / this->halfPeriod;

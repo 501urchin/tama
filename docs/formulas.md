@@ -31,14 +31,17 @@ $$
 
 **Description:** EMA with dynamic smoothing based on fractal dimension; fast in trends, slow in noise.
 
-$$
-D = \frac{\log(L_1 + L_2) - \log(L_N)}{\log(2)}
-$$
 
 $$
 L_1 = \frac{\text{max(H)} - \text{min(L)}}{N/2}, \quad
 L_2 = \frac{\text{max(H)} - \text{min(L)}}{N/2}, \quad
-L_N = \frac{\text{max(H)} - \text{min(L)}}{N}
+$$
+$$
+L_3 = \frac{\text{max(H)} - \text{min(L)}}{N}
+$$
+
+$$
+D = \frac{\log(L_1 + L_2) - \log(L_3)}{\log(2)}
 $$
 
 
