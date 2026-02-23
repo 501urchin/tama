@@ -36,18 +36,14 @@ namespace tama {
         if (output.size() < closeLen) {
             output.resize(closeLen);
         }
-        std::fill(output.begin(), output.begin() + this->period - 1, 0.0);
-
-        output[this->period-1] = close[0];
 
         for (size_t i = 0; i < this->period; i ++) {
             output[i] = close[i];
         }
 
         // edge case: what if period is uneven? how wil window splitting be handled
-        // naive approach, please optimize
 
-        // idea put these in the class
+        // idea: put these in the class
         double hb1Max;
         helpers::RingBuffer<double> hb1(this->halfPeriod);
         double hb2Max;
@@ -80,17 +76,7 @@ namespace tama {
 
             // this can be sped up by trying to avoid recalc every iteration
             // only recalc if leaving == max
-            hb1Max = hb1.max();
-            hb1.insert(hb2.head());
-            
-            hb2Max = hb2.max();
-            hb2.insert(high[i]);
 
-            lb1Min = lb1.min();
-            lb1.insert(lb2.head());
-            
-            lb2Min = lb2.min();
-            lb2.insert(low[i]);
 
             double fullWindowHigh =  hb1Max > hb2Max ? hb1Max : hb2Max;
             double fullWindowLow =  lb1Min < lb2Min ? lb1Min : lb2Min;
@@ -99,12 +85,47 @@ namespace tama {
             double l2 = (hb2Max - lb2Min) / this->halfPeriod;
             double l3 = (fullWindowHigh - fullWindowLow) / this->period;
             double D = log((l1 + l2) / l3) / this->logTwo;
-            if (D <= 0) {
-                D = 1;
-            }
+            if (D <= 0) D = 1;
+            
             double alpha = exp(this->eulerNumber * (D - 1));
 
             output[i] = alpha * close[i] + (1-alpha) * output[i-1];
+
+            bool recalchb1 = hb1.head() == hb1Max;
+            hb1.insert(hb2.head());
+            if (recalchb1) {
+                hb1Max = hb1.max();
+            } else if (hb2.head() > hb1Max) {
+                hb1Max = hb2.head();
+            }
+            
+            bool recalchb2 = hb2.head() == hb2Max;
+            hb2.insert(high[i]);
+            if (recalchb2) {
+                hb2Max = hb2.max();
+            } else if (high[i] > hb2Max) {
+                hb2Max = high[i];
+            }
+            
+
+            bool recalclb1 = lb1.head() == lb1Min;
+            lb1.insert(lb2.head());
+            if (recalclb1) {
+                lb1Min = lb1.min();
+            } else if (lb2.head() < lb1Min) {
+                lb1Min = lb2.head();
+            }
+
+            bool recalclb2 = lb2.head() == lb2Min;
+            lb2.insert(low[i]);
+            if (recalclb2) {
+                lb2Min = lb2.min();
+            } else if (low[i] < lb2Min) {
+                lb2Min = low[i];
+            }
+
+            
+
         }
         
         return status::ok;
