@@ -14,6 +14,10 @@ namespace tama {
         return this->lastFrama;
     }
 
+    double FractalAdaptiveMovingAverage::update(double close, double low, double high) {
+        return 0.0;
+    }
+
     status FractalAdaptiveMovingAverage::compute(std::span<const double> close, std::span<const double> low, std::span<const double> high, std::vector<double>& output) {
         size_t lowLen = low.size();
         size_t highLen = high.size();
@@ -74,6 +78,8 @@ namespace tama {
 
         for (size_t i = this->period; i <  closeLen; i++) {
 
+            // this can be sped up by trying to avoid recalc every iteration
+            // only recalc if leaving == max
             hb1Max = hb1.max();
             hb1.insert(hb2.head());
             

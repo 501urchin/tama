@@ -270,6 +270,41 @@ void benchmark_stateful_md() {
     std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
 }
 
+void benchmark_stateful_frama() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 20;
+
+    std::vector<double> initialHigh = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> initialLow = make_random_doubles(initialCount, 0.5, 99.5);
+    std::vector<double> initialClose(initialCount);
+
+    for (std::size_t i = 0; i < initialCount; ++i) {
+        initialClose[i] = (initialHigh[i] + initialLow[i]) * 0.5;
+    }
+
+    std::vector<double> updateHigh = make_random_doubles(updateCount, 1.0, 100.0);
+    std::vector<double> updateLow = make_random_doubles(updateCount, 0.5, 99.5);
+
+    std::vector<double> out;
+    FractalAdaptiveMovingAverage frama(period);
+
+    long long computeNs = measure_ns([&]() {
+        frama.compute(initialClose, initialLow, initialHigh, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (std::size_t i = 0; i < updateCount; ++i) {
+            frama.update(i, updateLow[i], updateHigh[i]);
+        }
+    });
+
+    std::printf("\nStateful FRAMA timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
+
 
 
 
@@ -284,6 +319,7 @@ int main() {
     // benchmark_stateful_dema();
     // benchmark_stateful_tema();
     // benchmark_stateful_md();
+    benchmark_stateful_frama();
 
 
     std::vector<double> high = {0.755156, 0.639031, 0.752145, 0.136273, 0.903269, 0.0940683, 0.57457, 0.372888, 0.273874, 0.390271};
@@ -303,11 +339,7 @@ int main() {
         return 1;
     }
 
-    std::cout  << "[ ";
-    for (double r : output) {
-        std::cout << r << " ";
-    }
-    std::cout  << "]\n";
+    print_vector("frama", output);
 
 
     return 0;

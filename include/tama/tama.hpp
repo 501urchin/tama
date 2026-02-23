@@ -278,7 +278,7 @@ namespace tama {
         FractalAdaptiveMovingAverage(uint16_t period, double eulerNumber = -4.6);
         status compute(std::span<const double> close, std::span<const double> low, std::span<const double> high, std::vector<double>& output);
         double latest();
-        double update(double low, double high);
+        double update(double close, double low, double high);
     };
  } // namespace tama
 
