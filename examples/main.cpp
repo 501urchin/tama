@@ -327,9 +327,10 @@ int main() {
     std::vector<double> low  = {0.745000, 0.629000, 0.742000, 0.130000, 0.893000, 0.090000, 0.564000, 0.362000, 0.263000, 0.380000};
     std::vector<double> close= {0.750000, 0.635000, 0.748000, 0.133000, 0.898000, 0.092000, 0.569000, 0.367000, 0.268000, 0.385000};
 
-    print_vector("high",high);
-    print_vector("low",low);
-    print_vector("close",close);
+
+    double nHigh = 0.2947;
+    double nLow = 0.2847;
+    double nClose = 0.2900;
 
     tama::FractalAdaptiveMovingAverage frama(4);
     std::vector<double> output(10);
@@ -340,7 +341,22 @@ int main() {
         return 1;
     }
 
-    print_vector("frama", output);
+    print_vector("frama 1", output);
+
+    high.push_back(nHigh);
+    low.push_back(nLow);
+    close.push_back(nClose);
+
+    std::cout << frama.update(nClose, nLow, nHigh) << std::endl;
+
+    res = frama.compute(close, low, high, output);
+    if (res != status::ok) {
+        std::cout << "failed" << std::endl;
+        return 1;
+    }
+
+
+    print_vector("frama 2", output);
 
 
     return 0;

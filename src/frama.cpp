@@ -107,10 +107,58 @@ namespace tama {
             }
         }
         
+        this->lastFrama = output.back();
         return status::ok;
     }
 
     double FractalAdaptiveMovingAverage::update(double close, double low, double high) {
-        return 0.0;
+        double fullWindowHigh =  this->highBuf1Max > this->highBuf2Max ? this->highBuf1Max : this->highBuf2Max;
+        double fullWindowLow =  this->lowBuf1min < this->lowBuf2min ? this->lowBuf1min : this->lowBuf2min;
+
+        double l1 = (this->highBuf1Max - this->lowBuf1min) / this->halfPeriod;
+        double l2 = (this->highBuf2Max - this->lowBuf2min) / this->halfPeriod;
+        double l3 = (fullWindowHigh - fullWindowLow) / this->period;
+        double D = log((l1 + l2) / l3) / this->logTwo;
+        if (D <= 0) D = 1;
+        
+        double alpha = exp(this->eulerNumber * (D - 1));
+
+        double out = alpha * close + (1-alpha) * this->lastFrama;
+
+        bool recalchb1 = this->highBuf1.head() == this->highBuf1Max;
+        this->highBuf1.insert(this->highBuf2.head());
+        if (recalchb1) {
+            this->highBuf1Max = this->highBuf1.max();
+        } else if (this->highBuf2.head() > this->highBuf1Max) {
+            this->highBuf1Max = this->highBuf2.head();
+        }
+        
+        bool recalchb2 = this->highBuf2.head() == this->highBuf2Max;
+        this->highBuf2.insert(high);
+        if (recalchb2) {
+            this->highBuf2Max = this->highBuf2.max();
+        } else if (high > this->highBuf2Max) {
+            this->highBuf2Max = high;
+        }
+        
+
+        bool recalclb1 = this->lowBuf1.head() == this->lowBuf1min;
+        this->lowBuf1.insert(this->lowBuf2.head());
+        if (recalclb1) {
+            this->lowBuf1min = this->lowBuf1.min();
+        } else if (this->lowBuf2.head() < this->lowBuf1min) {
+            this->lowBuf1min = this->lowBuf2.head();
+        }
+
+        bool recalclb2 = this->lowBuf2.head() == this->lowBuf2min;
+        this->lowBuf2.insert(low);
+        if (recalclb2) {
+            this->lowBuf2min = this->lowBuf2.min();
+        } else if (low < this->lowBuf2min) {
+            this->lowBuf2min = low;
+        }
+
+        this->lastFrama = out;
+        return out;
     }
 }
