@@ -263,16 +263,23 @@ namespace tama {
 
     class FractalAdaptiveMovingAverage {
     private:
+        bool initialized{false};
         size_t period;
         double eulerNumber;
         double halfPeriod;
         double logTwo;
 
-        helpers::RingBuffer<double> highBuf;
-        helpers::RingBuffer<double> lowBuf;
-        helpers::RingBuffer<double> closeBuf;
+        double highBuf1Max{0.0};
+        double highBuf2Max{0.0};
+        double lowBuf1min{0.0};
+        double lowBuf2min{0.0};
 
-        double lastFrama;
+        double lastFrama{0.0};
+
+        helpers::RingBuffer<double> highBuf1;
+        helpers::RingBuffer<double> highBuf2;
+        helpers::RingBuffer<double> lowBuf1;
+        helpers::RingBuffer<double> lowBuf2;
 
     public:
         FractalAdaptiveMovingAverage(uint16_t period, double eulerNumber = -4.6);

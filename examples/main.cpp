@@ -273,7 +273,7 @@ void benchmark_stateful_md() {
 void benchmark_stateful_frama() {
     constexpr std::size_t initialCount = 100'000;
     constexpr std::size_t updateCount = 100'000;
-    constexpr uint16_t period = 20;
+    constexpr uint16_t period = 50;
 
     std::vector<double> initialHigh = make_random_doubles(initialCount, 1.0, 100.0);
     std::vector<double> initialLow = make_random_doubles(initialCount, 0.5, 99.5);
@@ -285,6 +285,7 @@ void benchmark_stateful_frama() {
 
     std::vector<double> updateHigh = make_random_doubles(updateCount, 1.0, 100.0);
     std::vector<double> updateLow = make_random_doubles(updateCount, 0.5, 99.5);
+    std::vector<double> updateClose = make_random_doubles(updateCount, 0.5, 99.5);
 
     std::vector<double> out;
     FractalAdaptiveMovingAverage frama(period);
@@ -295,7 +296,7 @@ void benchmark_stateful_frama() {
 
     long long updatesNs = measure_ns([&]() {
         for (std::size_t i = 0; i < updateCount; ++i) {
-            frama.update(i, updateLow[i], updateHigh[i]);
+            frama.update(updateClose[i], updateLow[i], updateHigh[i]);
         }
     });
 
