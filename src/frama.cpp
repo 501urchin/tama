@@ -41,17 +41,65 @@ namespace tama {
         }
 
         // edge case: what if period is uneven? how wil window splitting be handled
-        for (size_t i = this->period; i <  closeLen; i++) {
-            std::span<const double> fullWindowHigh =  high.subspan(i - this->period, this->period);
-            std::span<const double> windowOneHigh =  high.subspan(i - this->period, this->halfPeriod);
-            std::span<const double> windowTwoHigh = high.subspan(i - this->halfPeriod, this->halfPeriod);
-            
-            std::span<const double> fullWindowLow =  low.subspan(i - this->period, this->period);
-            std::span<const double> windowOneLow =  low.subspan(i - this->period, this->halfPeriod);
-            std::span<const double> windowTwoLow = low.subspan(i - this->halfPeriod, this->halfPeriod);
+        // naive approach, please optimize
 
-            double l1 = (*std::max_element(windowOneHigh.begin(), windowOneHigh.end()) - *std::min_element(windowOneLow.begin(), windowOneLow.end())) / this->halfPeriod;
-            double l2 = (*std::max_element(windowTwoHigh.begin(), windowTwoHigh.end()) - *std::min_element(windowTwoLow.begin(), windowTwoLow.end())) / this->halfPeriod;
+        // idea: haave 2 ring buffers for high with len period/2
+        // on new price we move buf2.head() to buf1 and insert new price into buf2
+        // ex: tick -> buf1.insert(buf2.head()) -> buf2.insert(tick)
+
+        // idea: when a tick enters a ring buffer we check if the entering tick is greater less than the max or min of that buffer
+
+        double hb1Max;
+        helpers::RingBuffer<double> hb1(this->halfPeriod);
+        double hb2Max;
+        helpers::RingBuffer<double> hb2(this->halfPeriod);
+
+        double lb1Min;
+        helpers::RingBuffer<double> lb1(this->halfPeriod);
+        double lb2Min;
+        helpers::RingBuffer<double> lb2(this->halfPeriod);
+
+
+        for (size_t i = this->period; i <  closeLen; i++) {
+            if (hb1.empty()) {
+                std::span<const double> windowOneHigh =  high.subspan(i - this->period, this->halfPeriod);
+                hb1Max = *std::max_element(windowOneHigh.begin(), windowOneHigh.end());
+                hb1.insert(windowOneHigh);
+                
+                std::span<const double> windowTwoHigh = high.subspan(i - this->halfPeriod, this->halfPeriod);
+                hb2Max = *std::max_element(windowTwoHigh.begin(), windowTwoHigh.end());
+                hb2.insert(windowTwoHigh);
+
+
+                std::span<const double> windowOneLow =  low.subspan(i - this->period, this->halfPeriod);
+                lb1Min = *std::min_element(windowOneLow.begin(), windowOneLow.end());
+                lb1.insert(windowOneLow);
+
+                std::span<const double> windowTwoLow = low.subspan(i - this->halfPeriod, this->halfPeriod);
+                lb2Min = *std::min_element(windowTwoLow.begin(), windowTwoLow.end());
+                lb2.insert(windowTwoLow);
+            }
+
+            hb1Max = hb1.max();
+            hb1.insert(hb2.head());
+            
+            hb2Max = hb2.max();
+            hb2.insert(high[i]);
+
+            lb1Min = lb1.min();
+            lb1.insert(lb2.head());
+            
+            lb2Min = lb2.min();
+            lb2.insert(low[i]);
+   
+
+
+            std::span<const double> fullWindowHigh =  high.subspan(i - this->period, this->period);
+            std::span<const double> fullWindowLow =  low.subspan(i - this->period, this->period);
+    
+
+            double l1 = (hb1Max - lb1Min) / this->halfPeriod;
+            double l2 = (hb2Max - lb2Min) / this->halfPeriod;
             double l3 = (*std::max_element(fullWindowHigh.begin(), fullWindowHigh.end()) - *std::min_element(fullWindowLow.begin(), fullWindowLow.end())) / this->period;
             double D = log((l1 + l2) / l3) / this->logTwo;
             if (D <= 0) {

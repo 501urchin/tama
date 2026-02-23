@@ -5,6 +5,7 @@
 #include <span>
 #include <stdexcept>
 #include <vector>
+#include <algorithm>
 
 namespace helpers {
     double simdSum(std::span<const double> elms);
@@ -33,6 +34,12 @@ namespace helpers {
         }
 
         void insert(const std::vector<T>& vals) {
+            for (const auto& val : vals) {
+                insert(val);
+            }
+        }
+        
+        void insert(const std::span<const T> vals) {
             for (const auto& val : vals) {
                 insert(val);
             }
@@ -70,6 +77,18 @@ namespace helpers {
 
         size_t cap() const {
             return capacity;
+        }
+
+        T max() const {
+            return *(std::max_element(buf.begin(), buf.end()));
+        }
+        
+        T min() const {
+            return *(std::min_element(buf.begin(), buf.end()));
+        }
+        
+        bool empty() const {
+            return buf.empty();
         }
     };
 
