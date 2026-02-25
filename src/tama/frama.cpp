@@ -112,6 +112,10 @@ namespace tama {
     }
 
     double FractalAdaptiveMovingAverage::update(double close, double low, double high) {
+        if (this->initialized) {
+            throw std::runtime_error("frama not initialized");
+        }
+        
         double fullWindowHigh =  this->highBuf1Max > this->highBuf2Max ? this->highBuf1Max : this->highBuf2Max;
         double fullWindowLow =  this->lowBuf1min < this->lowBuf2min ? this->lowBuf1min : this->lowBuf2min;
 
