@@ -341,7 +341,9 @@ int main() {
         return 1;
     }
 
-    print_vector("frama 1", output);
+    print_vector("frama 1", high);
+    print_vector("frama 1", low);
+    print_vector("frama 1", high);
 
     high.push_back(nHigh);
     low.push_back(nLow);

@@ -24,31 +24,3 @@ $$
 EMA_t = EMA_{t-1} + \alpha \cdot (P_t - EMA_{t-1}), \quad
 \alpha = \frac{2}{N+1}
 $$
-
----
-
-### Fractal Adaptive Moving Average (FRAMA)
-
-**Description:** EMA with dynamic smoothing based on fractal dimension; fast in trends, slow in noise.
-
-
-$$
-L_1 = \frac{\text{max(H)} - \text{min(L)}}{N/2}, \quad
-L_2 = \frac{\text{max(H)} - \text{min(L)}}{N/2}, \quad
-$$
-$$
-L_3 = \frac{\text{max(H)} - \text{min(L)}}{N}
-$$
-
-$$
-D = \frac{\log(L_1 + L_2) - \log(L_3)}{\log(2)}
-$$
-
-
-$$
-\alpha_t = \exp(-4.6 \cdot (D - 1))
-$$
-
-$$
-FRAMA_t =  \alpha_t \cdot P_t +  (1 - \alpha_t) - FRAMA_{t-1}
-$$
