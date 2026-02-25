@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-file(GLOB TAMA_SOURCES CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE TAMA_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 add_library(tama ${TAMA_SOURCES})
 target_include_directories(tama PUBLIC include)

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include <tama/helpers.hpp>
+#include <helpers/helpers.hpp>
 
 TEST(RingBufferTest, ReadsInitialOrderFromHead_test) {
     const std::vector<int> values{1, 2, 3};

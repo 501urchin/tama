@@ -6,7 +6,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-file(GLOB TEST_SOURCES CONFIGURE_DEPENDS *.cpp)
+file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS *.cpp)
 add_executable(tests ${TEST_SOURCES})
 target_link_libraries(tests PRIVATE tama gtest_main)
 

@@ -3,7 +3,7 @@
 #include <vector>
 #include <numeric>
 
-#include <tama/helpers.hpp>
+#include <helpers/helpers.hpp>
 
 
 TEST(SimdHelpersTest, SimdSumMatchesAccumulate_test) {
