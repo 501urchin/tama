@@ -12,6 +12,7 @@ Included indicators:
 - Triple Exponential Moving Average (TEMA)
 - Hull Moving Average (HMA)
 - McGinley Dynamic (MD)
+- Fractal Adaptive Moving Average (FRAMA)
 
 Design goals:
 
@@ -22,7 +23,6 @@ Design goals:
 
 - Implement KAMA.
 - Implement generalized DEMA.
-- Implement FRAMA.
 
 ## Installation
 
