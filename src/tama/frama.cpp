@@ -73,37 +73,46 @@ namespace tama {
 
             output[i] = alpha * close[i] + (1-alpha) * output[i-1];
 
-            bool recalchb1 = this->highBuf1.head() == this->highBuf1Max;
-            this->highBuf1.insert(this->highBuf2.head());
+            const double hb1_head = highBuf1.head();
+            const double hb2_head = highBuf2.head();
+
+            const bool recalchb1 = (hb1_head == highBuf1Max);
+            highBuf1.insert(hb2_head);
+
             if (recalchb1) {
-                this->highBuf1Max = this->highBuf1.max();
-            } else if (this->highBuf2.head() > this->highBuf1Max) {
-                this->highBuf1Max = this->highBuf2.head();
+                highBuf1Max = highBuf1.max();
+            } else if (hb2_head > highBuf1Max) {
+                highBuf1Max = hb2_head;
             }
-            
-            bool recalchb2 = this->highBuf2.head() == this->highBuf2Max;
-            this->highBuf2.insert(high[i]);
+
+            const bool recalchb2 = (hb2_head == highBuf2Max);
+            highBuf2.insert(high[i]);
+
             if (recalchb2) {
-                this->highBuf2Max = this->highBuf2.max();
-            } else if (high[i] > this->highBuf2Max) {
-                this->highBuf2Max = high[i];
+                highBuf2Max = highBuf2.max();
+            } else if (high[i] > highBuf2Max) {
+                highBuf2Max = high[i];
             }
-            
 
-            bool recalclb1 = this->lowBuf1.head() == this->lowBuf1min;
-            this->lowBuf1.insert(this->lowBuf2.head());
+            const double lb1_head = lowBuf1.head();
+            const double lb2_head = lowBuf2.head();
+
+            const bool recalclb1 = (lb1_head == lowBuf1min);
+            lowBuf1.insert(lb2_head);
+
             if (recalclb1) {
-                this->lowBuf1min = this->lowBuf1.min();
-            } else if (this->lowBuf2.head() < this->lowBuf1min) {
-                this->lowBuf1min = this->lowBuf2.head();
+                lowBuf1min = lowBuf1.min();
+            } else if (lb2_head < lowBuf1min) {
+                lowBuf1min = lb2_head;
             }
 
-            bool recalclb2 = this->lowBuf2.head() == this->lowBuf2min;
-            this->lowBuf2.insert(low[i]);
+            const bool recalclb2 = (lb2_head == lowBuf2min);
+            lowBuf2.insert(low[i]);
+
             if (recalclb2) {
-                this->lowBuf2min = this->lowBuf2.min();
-            } else if (low[i] < this->lowBuf2min) {
-                this->lowBuf2min = low[i];
+                lowBuf2min = lowBuf2.min();
+            } else if (low[i] < lowBuf2min) {
+                lowBuf2min = low[i];
             }
         }
         
@@ -129,37 +138,46 @@ namespace tama {
 
         double out = alpha * close + (1-alpha) * this->lastFrama;
 
-        bool recalchb1 = this->highBuf1.head() == this->highBuf1Max;
-        this->highBuf1.insert(this->highBuf2.head());
+        const double hb1_head = highBuf1.head();
+        const double hb2_head = highBuf2.head();
+
+        const bool recalchb1 = (hb1_head == highBuf1Max);
+        highBuf1.insert(hb2_head);
+
         if (recalchb1) {
-            this->highBuf1Max = this->highBuf1.max();
-        } else if (this->highBuf2.head() > this->highBuf1Max) {
-            this->highBuf1Max = this->highBuf2.head();
+            highBuf1Max = highBuf1.max();
+        } else if (hb2_head > highBuf1Max) {
+            highBuf1Max = hb2_head;
         }
-        
-        bool recalchb2 = this->highBuf2.head() == this->highBuf2Max;
-        this->highBuf2.insert(high);
+
+        const bool recalchb2 = (hb2_head == highBuf2Max);
+        highBuf2.insert(high);
+
         if (recalchb2) {
-            this->highBuf2Max = this->highBuf2.max();
-        } else if (high > this->highBuf2Max) {
-            this->highBuf2Max = high;
+            highBuf2Max = highBuf2.max();
+        } else if (high > highBuf2Max) {
+            highBuf2Max = high;
         }
-        
 
-        bool recalclb1 = this->lowBuf1.head() == this->lowBuf1min;
-        this->lowBuf1.insert(this->lowBuf2.head());
+        const double lb1_head = lowBuf1.head();
+        const double lb2_head = lowBuf2.head();
+
+        const bool recalclb1 = (lb1_head == lowBuf1min);
+        lowBuf1.insert(lb2_head);
+
         if (recalclb1) {
-            this->lowBuf1min = this->lowBuf1.min();
-        } else if (this->lowBuf2.head() < this->lowBuf1min) {
-            this->lowBuf1min = this->lowBuf2.head();
+            lowBuf1min = lowBuf1.min();
+        } else if (lb2_head < lowBuf1min) {
+            lowBuf1min = lb2_head;
         }
 
-        bool recalclb2 = this->lowBuf2.head() == this->lowBuf2min;
-        this->lowBuf2.insert(low);
+        const bool recalclb2 = (lb2_head == lowBuf2min);
+        lowBuf2.insert(low);
+
         if (recalclb2) {
-            this->lowBuf2min = this->lowBuf2.min();
-        } else if (low < this->lowBuf2min) {
-            this->lowBuf2min = low;
+            lowBuf2min = lowBuf2.min();
+        } else if (low < lowBuf2min) {
+            lowBuf2min = low;
         }
 
         this->lastFrama = out;
