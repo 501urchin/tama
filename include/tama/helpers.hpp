@@ -7,9 +7,13 @@
 #include <vector>
 #include <algorithm>
 
+
+
 namespace helpers {
     double simdSum(std::span<const double> elms);
     
+// TOOD: the buf is way to slo for my liking. particularly at the min and mac functions
+// an apprach could be to keep track of inserted values. as soon as a val is inserted we compare it to min/max vars in the class and if g or s swap
     template <typename T>
     class RingBuffer {
     private:
