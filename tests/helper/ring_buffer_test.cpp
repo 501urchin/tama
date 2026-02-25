@@ -31,3 +31,31 @@ TEST(RingBufferTest, InsertAdvancesHeadAndOverwrites_test) {
     EXPECT_EQ(buffer[1], 4);
     EXPECT_EQ(buffer[2], 5);
 }
+
+
+TEST(RingBufferTest, RingBufferMax) {
+    helpers::RingBuffer<int> buffer(3);
+
+ 
+    buffer.insert({1, 2, 3});
+    EXPECT_EQ(buffer.max(), 3);
+
+    buffer.insert(4);
+    EXPECT_EQ(buffer.max(), 4);
+
+    buffer.insert({2, 2, 3});
+    EXPECT_EQ(buffer.max(), 3);
+}
+
+TEST(RingBufferTest, RingBufferMin) {
+    helpers::RingBuffer<int> buffer(3);
+
+    buffer.insert({3, 2, 5});
+    EXPECT_EQ(buffer.min(), 2);
+
+    buffer.insert(1);
+    EXPECT_EQ(buffer.min(), 1);
+
+    buffer.insert({4, 3, 2});
+    EXPECT_EQ(buffer.min(), 2);
+}
