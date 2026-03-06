@@ -10,6 +10,12 @@ enum class status : uint8_t {
     invalidParam
 };
 
+struct ExponentialMovingAverageState {
+    double lastEma{0.0};
+    double period;
+    double alpha;
+    double oma;
+};
 
 namespace tama {
     /// Stateful Exponential Moving Average (EMA) indicator.
@@ -25,7 +31,9 @@ namespace tama {
         /// Creates an EMA indicator instance.
         /// @param period Lookback period used to derive the EMA smoothing factor.
         /// @param prevCalculation Optional previous EMA value used as warm start.
-        ExponentialMovingAverage(uint16_t period, double prevCalculation = 0);
+        ExponentialMovingAverage(uint16_t period);
+        ExponentialMovingAverage(ExponentialMovingAverageState prevCalculation);
+        // ExponentialMovingAverage(ExponentialMovingAverageState state);
 
         /// Computes EMA values for the full input series.
         /// @param prices Input price series.
@@ -40,6 +48,9 @@ namespace tama {
 
         /// Returns the latest EMA value stored by the indicator.
         double latest();
+
+        ExponentialMovingAverageState getState();
+        
     };
 
     /// Stateful Simple Moving Average (SMA) indicator.
@@ -48,10 +59,10 @@ namespace tama {
     private:
         double alpha;
         size_t period;
-        helpers::RingBuffer<double> priceBuf;
         double rollingSum{0.0};
         bool initalized{false};
         double lastSma{0.0};
+        helpers::RingBuffer<double> priceBuf;
     public:
         /// Creates an SMA indicator instance.
         /// @param period Number of samples used in the SMA window.
@@ -78,13 +89,13 @@ namespace tama {
             size_t period;
             double denominator;
 
-            helpers::RingBuffer<double> priceBuf;
-
+            
             double rollingSum{0.0};
             double rollingWeightedSum{0.0};
-
+            
             bool initialized{false};
             double lastWma{0.0};
+            helpers::RingBuffer<double> priceBuf;
 
         public:
             /// Creates a WMA indicator instance.
@@ -111,14 +122,13 @@ namespace tama {
     class VolumeWeightedMovingAverage {
         private: 
             size_t period;
+            bool initialized;
+            double rollingNumerator;
+            double rollingDenominator;
+            double lastCalculation;
             helpers::RingBuffer<double> priceBuf;
             helpers::RingBuffer<double> volumeBuf;
             
-            double rollingNumerator;
-            double rollingDenominator;
-
-            bool initialized;
-            double lastCalculation;
         public:
             VolumeWeightedMovingAverage(uint16_t period, std::vector<double> prevPrices = {}, std::vector<double> prevVolume = {});
             status compute(std::span<const double> prices, std::span<const double> volume, std::vector<double>& output);
@@ -131,14 +141,13 @@ namespace tama {
     class HullMovingAverage {
         uint16_t p1;
         uint16_t p2;
-        uint16_t period;
+        uint16_t period;        
+        double lastHull = 0.0;
+        bool initialized = false;
 
         WeightedMovingAverage w1;
         WeightedMovingAverage w2;
         WeightedMovingAverage w3;
-
-        double lastHull = 0.0;
-        bool initialized = false;
     public:
         /// Creates an HMA indicator instance.
         /// @param period Base lookback period used by the HMA.
@@ -166,13 +175,11 @@ namespace tama {
     class DoubleExponentialMovingAverage {
     private:
         size_t period;
-
-        ExponentialMovingAverage ema1;
-        ExponentialMovingAverage ema2;
-
         bool initialized{false};
         double lastDema{0.0};
 
+        ExponentialMovingAverage ema1;
+        ExponentialMovingAverage ema2;
     public:
         /// Creates a DEMA indicator instance.
         /// @param period Lookback period used by the EMA cascade.
@@ -199,14 +206,13 @@ namespace tama {
     /// Supports both batch computation and single-tick updates.
     class TripleExponentialMovingAverage {
     private:
-        size_t period;
+        size_t period;    
+        bool initialized{false};
+        double lastTema{0.0};
 
         ExponentialMovingAverage ema1;
         ExponentialMovingAverage ema2;
         ExponentialMovingAverage ema3;
-
-        bool initialized{false};
-        double lastTema{0.0};
 
     public:
         /// Creates a TEMA indicator instance.
@@ -259,6 +265,7 @@ namespace tama {
         double latest();
     };
 
+    // TODO: add for support init
     class FractalAdaptiveMovingAverage {
     private:
         bool initialized{false};
@@ -285,6 +292,24 @@ namespace tama {
         double latest();
         double update(double close, double low, double high);
     };
+
+    class GeneralizedDoubleExponentialMovingAverage  {
+    private:
+        double period;
+        double oneMinPeriod;
+        ExponentialMovingAverage emaBuf1;
+        ExponentialMovingAverage emaBuf2;
+
+    public:
+        GeneralizedDoubleExponentialMovingAverage(double period, uint16_t emaPeriod);
+        status compute(std::span<const double> price, std::vector<double>& output);
+        double latest();
+        double update(double close);
+    };  
+
+    class KaufmanAdaptiveMovingAverage  {}; 
+
+
  } // namespace tama
 
 

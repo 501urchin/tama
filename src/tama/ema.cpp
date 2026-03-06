@@ -4,7 +4,8 @@
 #include <stdexcept>
 #include <tama/tama.hpp>
 
-tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double prevCalculation)
+
+tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period)
     : lastEma(0.0),
       period(static_cast<double>(period)),
       alpha(0.0),
@@ -16,11 +17,34 @@ tama::ExponentialMovingAverage::ExponentialMovingAverage(uint16_t period, double
 
     this->alpha = 2.0 / (this->period + 1.0);
     this->oma = 1.0 - this->alpha;
-    if (!std::isnan(prevCalculation) && prevCalculation != 0.0) {
-        this->lastEma = prevCalculation;
-        this->initalized = true;
+}
+
+
+tama::ExponentialMovingAverage::ExponentialMovingAverage(ExponentialMovingAverageState prevCalculation)
+    :   lastEma(prevCalculation.lastEma),
+        period(prevCalculation.period),
+        alpha(prevCalculation.alpha),
+        oma(prevCalculation.oma),
+        initalized(true) {
+
+
+    if (period <= 0) {
+        throw std::invalid_argument("Invalid period: must be > 0");
+    }
+
+    if (alpha <= 0.0 || alpha > 1.0) {
+        throw std::invalid_argument("Invalid alpha: must be in (0, 1]");
+    }
+
+    if (oma < 0.0) {
+        throw std::invalid_argument("Invalid OMA: cannot be negative");
+    }
+
+    if (std::isnan(lastEma)) {
+        throw std::invalid_argument("Invalid lastEma: cannot be NaN");
     }
 }
+
 
 status tama::ExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
     if (prices.empty()) {
@@ -56,4 +80,14 @@ double tama::ExponentialMovingAverage::update(double price) {
 
 double tama::ExponentialMovingAverage::latest() {
     return this->lastEma;
+}
+
+
+ExponentialMovingAverageState tama::ExponentialMovingAverage::getState() {
+    return {
+        .lastEma = this->lastEma,
+        .period = this->period,
+        .alpha = this->alpha,
+        .oma = this->oma
+    };
 }

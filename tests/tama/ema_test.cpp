@@ -66,7 +66,9 @@ TEST(TamaTest, EmaConstructorUsesPreviousCalculationForUpdate_test) {
     ExponentialMovingAverage baseline(3);
     ASSERT_EQ(baseline.compute(prices, emaOut), status::ok);
 
-    ExponentialMovingAverage resumed(3, emaOut.back());
+    auto prevState = baseline.getState();
+
+    ExponentialMovingAverage resumed(prevState);
 
     const double baselineUpdated = baseline.update(newPrice);
     const double resumedUpdated = resumed.update(newPrice);
