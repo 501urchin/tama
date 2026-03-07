@@ -2,14 +2,25 @@
 #include <tama/tama.hpp>
 #include <stdexcept>
 
+namespace {
+std::vector<double> ring_to_vector(const helpers::RingBuffer<double>& buffer) {
+    std::vector<double> values;
+    values.reserve(buffer.len());
+    for (size_t i = 0; i < buffer.len(); ++i) {
+        values.push_back(buffer[i]);
+    }
+    return values;
+}
+}
+
 tama::VolumeWeightedMovingAverage::VolumeWeightedMovingAverage(uint16_t period, std::vector<double> prevPrices, std::vector<double> prevVolume)
     : period(static_cast<size_t>(period)),
-      priceBuf(period > 0 ? period : 1),
-      volumeBuf(period > 0 ? period : 1),
+    initialized(false),
       rollingNumerator(0.0),
       rollingDenominator(0.0),
-      initialized(false),
-      lastCalculation(0.0) {
+    lastCalculation(0.0),
+    priceBuf(period > 0 ? period : 1),
+    volumeBuf(period > 0 ? period : 1) {
     if (this->period == 0) {
         throw std::invalid_argument("invalid period");
     }
@@ -44,8 +55,49 @@ tama::VolumeWeightedMovingAverage::VolumeWeightedMovingAverage(uint16_t period, 
     }   
 }
 
+tama::VolumeWeightedMovingAverage::VolumeWeightedMovingAverage(VolumeWeightedMovingAverageState prevCalculation)
+    : period(prevCalculation.period),
+      initialized(prevCalculation.initialized),
+      rollingNumerator(prevCalculation.rollingNumerator),
+      rollingDenominator(prevCalculation.rollingDenominator),
+      lastCalculation(prevCalculation.lastCalculation),
+      priceBuf(prevCalculation.period > 0 ? prevCalculation.period : 1),
+      volumeBuf(prevCalculation.period > 0 ? prevCalculation.period : 1) {
+    if (this->period == 0) {
+        throw std::invalid_argument("invalid period");
+    }
+
+    if (prevCalculation.priceBuf.size() != prevCalculation.volumeBuf.size()) {
+        throw std::invalid_argument("priceBuf and volumeBuf must match in size");
+    }
+
+    if (!prevCalculation.priceBuf.empty()) {
+        if (prevCalculation.priceBuf.size() != this->period) {
+            throw std::invalid_argument("priceBuf size doesn't match period");
+        }
+        this->priceBuf.insert(prevCalculation.priceBuf);
+        this->volumeBuf.insert(prevCalculation.volumeBuf);
+    }
+
+    if (this->initialized && this->priceBuf.len() != this->period) {
+        throw std::invalid_argument("initialized VWMA state requires a full buffer");
+    }
+}
+
 double tama::VolumeWeightedMovingAverage::latest() {
     return this->lastCalculation;
+}
+
+VolumeWeightedMovingAverageState tama::VolumeWeightedMovingAverage::getState() {
+    return {
+        .period = this->period,
+        .initialized = this->initialized,
+        .rollingNumerator = this->rollingNumerator,
+        .rollingDenominator = this->rollingDenominator,
+        .lastCalculation = this->lastCalculation,
+        .priceBuf = ring_to_vector(this->priceBuf),
+        .volumeBuf = ring_to_vector(this->volumeBuf)
+    };
 }
 
 status tama::VolumeWeightedMovingAverage::compute(std::span<const double> prices, std::span<const double> volume, std::vector<double>& output) {

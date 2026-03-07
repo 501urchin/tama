@@ -13,10 +13,10 @@ namespace {
 
 tama::DoubleExponentialMovingAverage::DoubleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc)
 	: period(static_cast<size_t>(require_period(period))),
-	  ema1(period),
-	  ema2(period),
 	  initialized(false),
-	  lastDema(0.0) {
+	  lastDema(0.0),
+	  ema1(period),
+	  ema2(period) {
 	if (!prevCalc.empty()) {
 		if (prevCalc.size() != this->period) {
 			throw std::invalid_argument("prevCalc buffer doesn't match period");
@@ -37,6 +37,17 @@ tama::DoubleExponentialMovingAverage::DoubleExponentialMovingAverage(uint16_t pe
 
 		this->lastDema = 2.0 * emaAOut.back() - emaBOut.back();
 		this->initialized = true;
+	}
+}
+
+tama::DoubleExponentialMovingAverage::DoubleExponentialMovingAverage(DoubleExponentialMovingAverageState prevCalculation)
+	: period(prevCalculation.period),
+	  initialized(prevCalculation.initialized),
+	  lastDema(prevCalculation.lastDema),
+	  ema1(prevCalculation.ema1),
+	  ema2(prevCalculation.ema2) {
+	if (this->period == 0) {
+		throw std::invalid_argument("invalid period");
 	}
 }
 
@@ -89,4 +100,14 @@ double tama::DoubleExponentialMovingAverage::update(double price) {
 
 double tama::DoubleExponentialMovingAverage::latest() {
 	return this->lastDema;
+}
+
+DoubleExponentialMovingAverageState tama::DoubleExponentialMovingAverage::getState() {
+	return {
+		.period = this->period,
+		.initialized = this->initialized,
+		.lastDema = this->lastDema,
+		.ema1 = this->ema1.getState(),
+		.ema2 = this->ema2.getState()
+	};
 }

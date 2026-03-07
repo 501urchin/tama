@@ -13,11 +13,11 @@ namespace {
 
 tama::TripleExponentialMovingAverage::TripleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc)
 	: period(static_cast<size_t>(require_period(period))),
+	  initialized(false),
+	  lastTema(0.0),
 	  ema1(period),
 	  ema2(period),
-	  ema3(period),
-	  initialized(false),
-	  lastTema(0.0) {
+	  ema3(period) {
 	if (!prevCalc.empty()) {
 		size_t psize = prevCalc.size();
 		if (psize != this->period) {
@@ -45,6 +45,18 @@ tama::TripleExponentialMovingAverage::TripleExponentialMovingAverage(uint16_t pe
 
 		this->lastTema = 3.0 * emaAOut.back() - 3.0 * emaBOut.back() + emaCOut.back();
 		this->initialized = true;
+	}
+}
+
+tama::TripleExponentialMovingAverage::TripleExponentialMovingAverage(TripleExponentialMovingAverageState prevCalculation)
+	: period(prevCalculation.period),
+	  initialized(prevCalculation.initialized),
+	  lastTema(prevCalculation.lastTema),
+	  ema1(prevCalculation.ema1),
+	  ema2(prevCalculation.ema2),
+	  ema3(prevCalculation.ema3) {
+	if (this->period == 0) {
+		throw std::invalid_argument("invalid period");
 	}
 }
 
@@ -104,4 +116,15 @@ double tama::TripleExponentialMovingAverage::update(double price) {
 
 double tama::TripleExponentialMovingAverage::latest() {
 	return this->lastTema;
+}
+
+TripleExponentialMovingAverageState tama::TripleExponentialMovingAverage::getState() {
+	return {
+		.period = this->period,
+		.initialized = this->initialized,
+		.lastTema = this->lastTema,
+		.ema1 = this->ema1.getState(),
+		.ema2 = this->ema2.getState(),
+		.ema3 = this->ema3.getState()
+	};
 }

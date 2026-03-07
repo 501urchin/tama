@@ -17,6 +17,86 @@ struct ExponentialMovingAverageState {
     double oma;
 };
 
+struct SimpleMovingAverageState {
+    double alpha{0.0};
+    size_t period{0};
+    double rollingSum{0.0};
+    bool initialized{false};
+    double lastSma{0.0};
+    std::vector<double> priceBuf;
+};
+
+struct WeightedMovingAverageState {
+    size_t period{0};
+    double denominator{0.0};
+    double rollingSum{0.0};
+    double rollingWeightedSum{0.0};
+    bool initialized{false};
+    double lastWma{0.0};
+    std::vector<double> priceBuf;
+};
+
+struct VolumeWeightedMovingAverageState {
+    size_t period{0};
+    bool initialized{false};
+    double rollingNumerator{0.0};
+    double rollingDenominator{0.0};
+    double lastCalculation{0.0};
+    std::vector<double> priceBuf;
+    std::vector<double> volumeBuf;
+};
+
+struct HullMovingAverageState {
+    uint16_t p1{0};
+    uint16_t p2{0};
+    uint16_t period{0};
+    double lastHull{0.0};
+    bool initialized{false};
+    WeightedMovingAverageState w1;
+    WeightedMovingAverageState w2;
+    WeightedMovingAverageState w3;
+};
+
+struct DoubleExponentialMovingAverageState {
+    size_t period{0};
+    bool initialized{false};
+    double lastDema{0.0};
+    ExponentialMovingAverageState ema1;
+    ExponentialMovingAverageState ema2;
+};
+
+struct TripleExponentialMovingAverageState {
+    size_t period{0};
+    bool initialized{false};
+    double lastTema{0.0};
+    ExponentialMovingAverageState ema1;
+    ExponentialMovingAverageState ema2;
+    ExponentialMovingAverageState ema3;
+};
+
+struct McGinleyDynamicMovingAverageState {
+    uint16_t period{0};
+    double lastMd{0.0};
+    bool initialized{false};
+};
+
+struct FractalAdaptiveMovingAverageState {
+    bool initialized{false};
+    size_t period{0};
+    double eulerNumber{-4.6};
+    double halfPeriod{0.0};
+    double logTwo{0.0};
+    double highBuf1Max{0.0};
+    double highBuf2Max{0.0};
+    double lowBuf1min{0.0};
+    double lowBuf2min{0.0};
+    double lastFrama{0.0};
+    std::vector<double> highBuf1;
+    std::vector<double> highBuf2;
+    std::vector<double> lowBuf1;
+    std::vector<double> lowBuf2;
+};
+
 namespace tama {
     /// Stateful Exponential Moving Average (EMA) indicator.
     /// Supports both batch computation and single-tick updates.
@@ -67,6 +147,7 @@ namespace tama {
         /// Creates an SMA indicator instance.
         /// @param period Number of samples used in the SMA window.
         SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+        SimpleMovingAverage(SimpleMovingAverageState prevCalculation);
 
         /// Computes SMA values for the full input series.
         /// @param prices Input price series.
@@ -81,6 +162,8 @@ namespace tama {
 
         /// Returns the latest SMA value stored by the indicator.
         double latest();
+
+        SimpleMovingAverageState getState();
     };
 
 
@@ -103,6 +186,7 @@ namespace tama {
             /// @param prevCalc Optional warm-start buffer containing the latest `period`
             /// prices ordered from past to present (oldest to newest).
             WeightedMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+            WeightedMovingAverage(WeightedMovingAverageState prevCalculation);
 
             /// Computes WMA values for the full input series.
             /// @param prices Input price series.
@@ -116,6 +200,8 @@ namespace tama {
 
             /// Returns the latest WMA value stored by the indicator.
             double latest();
+
+            WeightedMovingAverageState getState();
 
     };
 
@@ -131,9 +217,11 @@ namespace tama {
             
         public:
             VolumeWeightedMovingAverage(uint16_t period, std::vector<double> prevPrices = {}, std::vector<double> prevVolume = {});
+            VolumeWeightedMovingAverage(VolumeWeightedMovingAverageState prevCalculation);
             status compute(std::span<const double> prices, std::span<const double> volume, std::vector<double>& output);
             double update(double price, double volume);
             double latest();
+            VolumeWeightedMovingAverageState getState();
     };
 
 
@@ -154,6 +242,7 @@ namespace tama {
         /// @param prevCalc Optional warm-start buffer containing the latest `period`
         /// prices ordered from past to present (oldest to newest).
         HullMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+        HullMovingAverage(HullMovingAverageState prevCalculation);
 
         /// Computes HMA values for the full input series.
         /// @param prices Input price series.
@@ -168,6 +257,8 @@ namespace tama {
 
         /// Returns the latest HMA value stored by the indicator.
         double latest();
+
+        HullMovingAverageState getState();
     };
 
     /// Stateful Double Exponential Moving Average (DEMA) indicator.
@@ -186,6 +277,7 @@ namespace tama {
         /// @param prevCalc Optional warm-start buffer containing the latest `period`
         /// prices ordered from past to present (oldest to newest).
         DoubleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+        DoubleExponentialMovingAverage(DoubleExponentialMovingAverageState prevCalculation);
 
         /// Computes DEMA values for the full input series.
         /// @param prices Input price series.
@@ -200,6 +292,8 @@ namespace tama {
 
         /// Returns the latest DEMA value stored by the indicator.
         double latest();
+
+        DoubleExponentialMovingAverageState getState();
     };
 
     /// Stateful Triple Exponential Moving Average (TEMA) indicator.
@@ -220,6 +314,7 @@ namespace tama {
         /// @param prevCalc Optional warm-start buffer containing the latest `period`
         /// prices ordered from past to present (oldest to newest).
         TripleExponentialMovingAverage(uint16_t period, std::vector<double> prevCalc = {});
+        TripleExponentialMovingAverage(TripleExponentialMovingAverageState prevCalculation);
 
         /// Computes TEMA values for the full input series.
         /// @param prices Input price series.
@@ -234,6 +329,8 @@ namespace tama {
 
         /// Returns the latest TEMA value stored by the indicator.
         double latest();
+
+        TripleExponentialMovingAverageState getState();
     };
     
     /// Stateful McGinley Dynamic (MD) indicator.
@@ -249,6 +346,7 @@ namespace tama {
         /// @param period Base lookback period used in the MD calculation.
         /// @param prevCalculation Optional previous MD value used as warm start.
         McGinleyDynamicMovingAverage(uint16_t period, double prevCalculation = 0.0);
+        McGinleyDynamicMovingAverage(McGinleyDynamicMovingAverageState prevCalculation);
 
         /// Computes MD values for the full input series.
         /// @param prices Input price series.
@@ -263,6 +361,8 @@ namespace tama {
 
         /// Returns the latest MD value stored by the indicator.
         double latest();
+
+        McGinleyDynamicMovingAverageState getState();
     };
 
     // TODO: add for support init
@@ -288,9 +388,11 @@ namespace tama {
 
     public:
         FractalAdaptiveMovingAverage(uint16_t period, double eulerNumber = -4.6);
+        FractalAdaptiveMovingAverage(FractalAdaptiveMovingAverageState prevCalculation);
         status compute(std::span<const double> close, std::span<const double> low, std::span<const double> high, std::vector<double>& output);
         double latest();
         double update(double close, double low, double high);
+        FractalAdaptiveMovingAverageState getState();
     };
 
     class GeneralizedDoubleExponentialMovingAverage  {

@@ -16,6 +16,19 @@ tama::McGinleyDynamicMovingAverage::McGinleyDynamicMovingAverage(uint16_t period
     }
 }
 
+tama::McGinleyDynamicMovingAverage::McGinleyDynamicMovingAverage(McGinleyDynamicMovingAverageState prevCalculation)
+    : period(prevCalculation.period),
+      lastMd(prevCalculation.lastMd),
+      initialized(prevCalculation.initialized) {
+    if (this->period == 0) {
+        throw std::invalid_argument("invalid period");
+    }
+
+    if (std::isnan(this->lastMd)) {
+        throw std::invalid_argument("invalid previous calculation");
+    }
+}
+
 status tama::McGinleyDynamicMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
     if (prices.empty()) {
         return status::emptyParams;
@@ -59,4 +72,12 @@ double tama::McGinleyDynamicMovingAverage::update(double price) {
 
 double tama::McGinleyDynamicMovingAverage::latest() {
     return this->lastMd;
+}
+
+McGinleyDynamicMovingAverageState tama::McGinleyDynamicMovingAverage::getState() {
+    return {
+        .period = this->period,
+        .lastMd = this->lastMd,
+        .initialized = this->initialized
+    };
 }

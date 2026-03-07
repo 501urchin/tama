@@ -53,6 +53,27 @@ tama::HullMovingAverage::HullMovingAverage(uint16_t period, std::vector<double> 
     }
 }
 
+tama::HullMovingAverage::HullMovingAverage(HullMovingAverageState prevCalculation)
+    : p1(prevCalculation.p1),
+      p2(prevCalculation.p2),
+      period(prevCalculation.period),
+      lastHull(prevCalculation.lastHull),
+      initialized(prevCalculation.initialized),
+      w1(prevCalculation.w1),
+      w2(prevCalculation.w2),
+      w3(prevCalculation.w3) {
+    if (this->period == 0) {
+        throw std::invalid_argument("invalid period");
+    }
+
+    const uint16_t expectedP1 = std::max<uint16_t>(1, static_cast<uint16_t>(this->period / 2));
+    const uint16_t expectedP2 = std::max<uint16_t>(1, static_cast<uint16_t>(std::lround(std::sqrt(static_cast<double>(this->period)))));
+
+    if (this->p1 != expectedP1 || this->p2 != expectedP2) {
+        throw std::invalid_argument("invalid derived periods in HMA state");
+    }
+}
+
 status tama::HullMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
     if (prices.empty()) {
         return status::emptyParams;
@@ -96,6 +117,19 @@ status tama::HullMovingAverage::compute(std::span<const double> prices, std::vec
 
 double tama::HullMovingAverage::latest() {
     return this->lastHull;
+}
+
+HullMovingAverageState tama::HullMovingAverage::getState() {
+    return {
+        .p1 = this->p1,
+        .p2 = this->p2,
+        .period = this->period,
+        .lastHull = this->lastHull,
+        .initialized = this->initialized,
+        .w1 = this->w1.getState(),
+        .w2 = this->w2.getState(),
+        .w3 = this->w3.getState()
+    };
 }
 
 double tama::HullMovingAverage::update(double price) {

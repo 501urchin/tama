@@ -30,6 +30,7 @@ namespace helpers {
             buf.reserve(size);  
         }
 
+
         T head() const {
             if (buf.empty()) {
                 throw std::runtime_error("buffer is empty");

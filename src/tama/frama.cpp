@@ -1,5 +1,17 @@
 #include "tama/tama.hpp"
 #include <cmath>
+#include <stdexcept>
+
+namespace {
+std::vector<double> ring_to_vector(const helpers::RingBuffer<double>& buffer) {
+    std::vector<double> values;
+    values.reserve(buffer.len());
+    for (size_t i = 0; i < buffer.len(); ++i) {
+        values.push_back(buffer[i]);
+    }
+    return values;
+}
+}
 
 
 namespace tama {
@@ -11,7 +23,52 @@ namespace tama {
     highBuf1(period/2), 
     highBuf2(period/2), 
     lowBuf1(period/2), 
-    lowBuf2(period/2) {}
+    lowBuf2(period/2) {
+        if (period < 2) {
+            throw std::invalid_argument("invalid period");
+        }
+    }
+
+    FractalAdaptiveMovingAverage::FractalAdaptiveMovingAverage(FractalAdaptiveMovingAverageState prevCalculation)
+    : initialized(prevCalculation.initialized),
+    period(prevCalculation.period),
+    eulerNumber(prevCalculation.eulerNumber),
+    halfPeriod(prevCalculation.halfPeriod),
+    logTwo(prevCalculation.logTwo),
+    highBuf1Max(prevCalculation.highBuf1Max),
+    highBuf2Max(prevCalculation.highBuf2Max),
+    lowBuf1min(prevCalculation.lowBuf1min),
+    lowBuf2min(prevCalculation.lowBuf2min),
+    lastFrama(prevCalculation.lastFrama),
+    highBuf1(prevCalculation.period / 2),
+    highBuf2(prevCalculation.period / 2),
+    lowBuf1(prevCalculation.period / 2),
+    lowBuf2(prevCalculation.period / 2) {
+        if (this->period < 2) {
+            throw std::invalid_argument("invalid period");
+        }
+
+        if (std::abs(this->halfPeriod - static_cast<double>(this->period / 2)) > 1e-12) {
+            throw std::invalid_argument("invalid halfPeriod for provided period");
+        }
+
+        if (this->logTwo == 0.0) {
+            throw std::invalid_argument("invalid logTwo");
+        }
+
+        const size_t expectedWindowSize = this->period / 2;
+        if (prevCalculation.highBuf1.size() != expectedWindowSize ||
+            prevCalculation.highBuf2.size() != expectedWindowSize ||
+            prevCalculation.lowBuf1.size() != expectedWindowSize ||
+            prevCalculation.lowBuf2.size() != expectedWindowSize) {
+            throw std::invalid_argument("frama buffers do not match period");
+        }
+
+        this->highBuf1.insert(prevCalculation.highBuf1);
+        this->highBuf2.insert(prevCalculation.highBuf2);
+        this->lowBuf1.insert(prevCalculation.lowBuf1);
+        this->lowBuf2.insert(prevCalculation.lowBuf2);
+    }
 
     double FractalAdaptiveMovingAverage::latest() {
         return this->lastFrama;
@@ -117,11 +174,12 @@ namespace tama {
         }
         
         this->lastFrama = output.back();
+        this->initialized = true;
         return status::ok;
     }
 
     double FractalAdaptiveMovingAverage::update(double close, double low, double high) {
-        if (this->initialized) {
+        if (!this->initialized) {
             throw std::runtime_error("frama not initialized");
         }
         
@@ -182,5 +240,24 @@ namespace tama {
 
         this->lastFrama = out;
         return out;
+    }
+
+    FractalAdaptiveMovingAverageState FractalAdaptiveMovingAverage::getState() {
+        return {
+            .initialized = this->initialized,
+            .period = this->period,
+            .eulerNumber = this->eulerNumber,
+            .halfPeriod = this->halfPeriod,
+            .logTwo = this->logTwo,
+            .highBuf1Max = this->highBuf1Max,
+            .highBuf2Max = this->highBuf2Max,
+            .lowBuf1min = this->lowBuf1min,
+            .lowBuf2min = this->lowBuf2min,
+            .lastFrama = this->lastFrama,
+            .highBuf1 = ring_to_vector(this->highBuf1),
+            .highBuf2 = ring_to_vector(this->highBuf2),
+            .lowBuf1 = ring_to_vector(this->lowBuf1),
+            .lowBuf2 = ring_to_vector(this->lowBuf2)
+        };
     }
 }

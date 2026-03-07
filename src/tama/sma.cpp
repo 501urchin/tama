@@ -1,16 +1,28 @@
 #include <tama/tama.hpp>
 #include <helpers/helpers.hpp>
 #include <algorithm>
+#include <cmath>
 #include <span>
 #include <stdexcept>
+
+namespace {
+std::vector<double> ring_to_vector(const helpers::RingBuffer<double>& buffer) {
+    std::vector<double> values;
+    values.reserve(buffer.len());
+    for (size_t i = 0; i < buffer.len(); ++i) {
+        values.push_back(buffer[i]);
+    }
+    return values;
+}
+}
 
 tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<double> prevCalc)
     : alpha(0.0),
       period(static_cast<size_t>(period)),
-      priceBuf(period > 0 ? period : 1),
       rollingSum(0.0),
       initalized(false),
-      lastSma(0.0) {
+    lastSma(0.0),
+    priceBuf(period > 0 ? period : 1) {
     if (this->period == 0) {
         throw std::invalid_argument("invalid period");
     }
@@ -29,8 +41,47 @@ tama::SimpleMovingAverage::SimpleMovingAverage(uint16_t period, std::vector<doub
     }
 }
 
+tama::SimpleMovingAverage::SimpleMovingAverage(SimpleMovingAverageState prevCalculation)
+    : alpha(prevCalculation.alpha),
+      period(prevCalculation.period),
+      rollingSum(prevCalculation.rollingSum),
+      initalized(prevCalculation.initialized),
+      lastSma(prevCalculation.lastSma),
+      priceBuf(prevCalculation.period > 0 ? prevCalculation.period : 1) {
+    if (this->period == 0) {
+        throw std::invalid_argument("invalid period");
+    }
+
+    const double expectedAlpha = 1.0 / static_cast<double>(this->period);
+    if (std::abs(this->alpha - expectedAlpha) > 1e-12) {
+        throw std::invalid_argument("invalid alpha for provided period");
+    }
+
+    if (!prevCalculation.priceBuf.empty()) {
+        if (prevCalculation.priceBuf.size() != this->period) {
+            throw std::invalid_argument("priceBuf size doesn't match period");
+        }
+        this->priceBuf.insert(prevCalculation.priceBuf);
+    }
+
+    if (this->initalized && this->priceBuf.len() != this->period) {
+        throw std::invalid_argument("initialized SMA state requires a full buffer");
+    }
+}
+
 double tama::SimpleMovingAverage::latest() {
     return this->lastSma;
+}
+
+SimpleMovingAverageState tama::SimpleMovingAverage::getState() {
+    return {
+        .alpha = this->alpha,
+        .period = this->period,
+        .rollingSum = this->rollingSum,
+        .initialized = this->initalized,
+        .lastSma = this->lastSma,
+        .priceBuf = ring_to_vector(this->priceBuf)
+    };
 }
 
 status tama::SimpleMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
