@@ -16,6 +16,10 @@ namespace tama {
 
 
     status GeneralizedDoubleExponentialMovingAverage::compute(std::span<const double> prices, std::vector<double>& output) {
+        if (prices.empty()) {
+            return status::emptyParams;
+        }
+
         size_t priceLen = prices.size(); 
 
         if (output.size() < priceLen) {
@@ -39,6 +43,35 @@ namespace tama {
         }
 
         this->lastGd = output.back();
+        return status::ok;
+    }
+
+
+    GeneralizedDoubleExponentialMovingAverage::GeneralizedDoubleExponentialMovingAverage(GeneralizedDoubleExponentialMovingAverageState prevCalculation)
+        : period(prevCalculation.period),
+          emaPeriod(prevCalculation.emaPeriod),
+          onePlusPeriod(prevCalculation.onePlusPeriod),
+          lastGd(prevCalculation.lastGd),
+          emaBuf1(prevCalculation.ema1),
+          emaBuf2(prevCalculation.ema2) {
+        if (period == 0) {
+            throw std::invalid_argument("invalid period");
+        }
+        if (emaPeriod == 0) {
+            throw std::invalid_argument("invalid emaPeriod");
+        }
+    };
+
+
+    GeneralizedDoubleExponentialMovingAverageState GeneralizedDoubleExponentialMovingAverage::getState() {
+        return {
+            .period = this->period,
+            .emaPeriod = this->emaPeriod,
+            .onePlusPeriod = this->onePlusPeriod,
+            .lastGd = this->lastGd,
+            .ema1 = this->emaBuf1.getState(),
+            .ema2 = this->emaBuf2.getState()
+        };
     }
 
 

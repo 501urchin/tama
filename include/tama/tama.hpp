@@ -97,6 +97,15 @@ struct FractalAdaptiveMovingAverageState {
     std::vector<double> lowBuf2;
 };
 
+struct GeneralizedDoubleExponentialMovingAverageState {
+    double period{0.0};
+    double emaPeriod{0.0};
+    double onePlusPeriod{0.0};
+    double lastGd{0.0};
+    ExponentialMovingAverageState ema1;
+    ExponentialMovingAverageState ema2;
+};
+
 namespace tama {
     /// Stateful Exponential Moving Average (EMA) indicator.
     /// Supports both batch computation and single-tick updates.
@@ -400,15 +409,17 @@ namespace tama {
         double period;
         double emaPeriod;
         double onePlusPeriod;
-        double lastGd;
+        double lastGd{0.0};
         ExponentialMovingAverage emaBuf1;
         ExponentialMovingAverage emaBuf2;
 
     public:
         GeneralizedDoubleExponentialMovingAverage(double period, uint16_t emaPeriod);
+        GeneralizedDoubleExponentialMovingAverage(GeneralizedDoubleExponentialMovingAverageState prevCalculation);
         status compute(std::span<const double> price, std::vector<double>& output);
         double latest();
         double update(double price);
+        GeneralizedDoubleExponentialMovingAverageState getState();
     };  
 
     class KaufmanAdaptiveMovingAverage  {}; 
