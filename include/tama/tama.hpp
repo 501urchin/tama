@@ -365,7 +365,7 @@ namespace tama {
         McGinleyDynamicMovingAverageState getState();
     };
 
-    // TODO: add for support init
+
     class FractalAdaptiveMovingAverage {
     private:
         bool initialized{false};
@@ -398,7 +398,9 @@ namespace tama {
     class GeneralizedDoubleExponentialMovingAverage  {
     private:
         double period;
-        double oneMinPeriod;
+        double emaPeriod;
+        double onePlusPeriod;
+        double lastGd;
         ExponentialMovingAverage emaBuf1;
         ExponentialMovingAverage emaBuf2;
 
@@ -406,7 +408,7 @@ namespace tama {
         GeneralizedDoubleExponentialMovingAverage(double period, uint16_t emaPeriod);
         status compute(std::span<const double> price, std::vector<double>& output);
         double latest();
-        double update(double close);
+        double update(double price);
     };  
 
     class KaufmanAdaptiveMovingAverage  {}; 

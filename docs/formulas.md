@@ -17,10 +17,6 @@ $$
 **Description:** Reduces EMA lag using a weighted second EMA; tuning weight controls aggressiveness.
 
 $$
-GD_t = (1 + w) \cdot EMA_t - w \cdot EMA(EMA_t)
+GD_t = (1 + w) \cdot EMA_1 - w \cdot EMA_2(EMA_1)
 $$
 
-$$
-EMA_t = EMA_{t-1} + \alpha \cdot (P_t - EMA_{t-1}), \quad
-\alpha = \frac{2}{N+1}
-$$
