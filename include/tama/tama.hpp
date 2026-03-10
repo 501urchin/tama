@@ -422,7 +422,9 @@ namespace tama {
         GeneralizedDoubleExponentialMovingAverageState getState();
     };  
 
-    class KaufmanAdaptiveMovingAverage  {}; 
+    class KaufmanAdaptiveMovingAverage  {
+        private:
+    }; 
 
 
  } // namespace tama

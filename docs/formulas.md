@@ -9,14 +9,3 @@ $$
 $$
 SC_t = \Big[ ER_t \cdot (\alpha_f - \alpha_s) + \alpha_s \Big]^2
 $$
-
----
-
-### Generalized Double Exponential Moving Average (GD)
-
-**Description:** Reduces EMA lag using a weighted second EMA; tuning weight controls aggressiveness.
-
-$$
-GD_t = (1 + w) \cdot EMA_1 - w \cdot EMA_2(EMA_1)
-$$
-

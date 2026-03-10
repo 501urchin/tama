@@ -270,6 +270,7 @@ void benchmark_stateful_md() {
     std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
 }
 
+
 void benchmark_stateful_frama() {
     constexpr std::size_t initialCount = 100'000;
     constexpr std::size_t updateCount = 100'000;
@@ -306,6 +307,39 @@ void benchmark_stateful_frama() {
     std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
 }
 
+void benchmark_stateful_gd() {
+    constexpr std::size_t initialCount = 100'000;
+    constexpr std::size_t updateCount = 100'000;
+    constexpr uint16_t period = 50;
+
+    std::vector<double> initialHigh = make_random_doubles(initialCount, 1.0, 100.0);
+    std::vector<double> initialLow = make_random_doubles(initialCount, 0.5, 99.5);
+    std::vector<double> initialClose(initialCount);
+
+    for (std::size_t i = 0; i < initialCount; ++i) {
+        initialClose[i] = (initialHigh[i] + initialLow[i]) * 0.5;
+    }
+
+    std::vector<double> updateClose = make_random_doubles(updateCount, 0.5, 99.5);
+
+    std::vector<double> out;
+    GeneralizedDoubleExponentialMovingAverage gd(1.4, period);
+
+    long long computeNs = measure_ns([&]() {
+        gd.compute(initialClose, out);
+    });
+
+    long long updatesNs = measure_ns([&]() {
+        for (std::size_t i = 0; i < updateCount; ++i) {
+            gd.update(updateClose[i]);
+        }
+    });
+
+    std::printf("\nStateful GD timing\n");
+    std::printf("compute (100k): %7.3f ms\n", static_cast<double>(computeNs) / 1'000'000.0);
+    std::printf("update (100k): %7.3f ms\n", static_cast<double>(updatesNs) / 1'000'000.0);
+    std::printf("avg update time: %.3f ns/update\n", static_cast<double>(updatesNs) / static_cast<double>(updateCount));
+}
 
 
 
@@ -321,6 +355,7 @@ int main() {
     benchmark_stateful_tema();
     benchmark_stateful_md();
     benchmark_stateful_frama();
+    benchmark_stateful_gd();
 
 
     return 0;
